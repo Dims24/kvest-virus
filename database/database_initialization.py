@@ -24,8 +24,7 @@ def init_database():
                     id SERIAL PRIMARY KEY,
                     chat_id varchar not null,
                     name     varchar not null,
-                    start_at time ,
-                    end_at   time NULL
+                    count int default 0
                 );
         """
         init_task = """
@@ -33,53 +32,41 @@ def init_database():
                 (
                     id          SERIAL PRIMARY KEY,
                     chat_id     varchar not null,
-                    firi  boolean default false,
-                    start_question_1  time NULL,
-                    end_question_1  time NULL,
+                    name     varchar not null,
+                    start_entrance1 time NULL,
+                    start_entrance2 time NULL,
+                    start_entrance3 time NULL,
+                    question_1  boolean default false,
                     question_2  boolean default false,
-                    start_question_2  time NULL,
-                    end_question_2  time NULL,
                     question_3  boolean default false,
-                    start_question_3  time NULL,
-                    end_question_3  time NULL,
                     question_4  boolean default false,
-                    start_question_4  time NULL,
-                    end_question_4  time NULL,
                     question_5  boolean default false,
-                    start_question_5  time NULL,
-                    end_question_5  time NULL,
                     question_6  boolean default false,
-                    start_question_6  time NULL,
-                    end_question_6  time NULL,
                     question_7  boolean default false,
-                    start_question_7  time NULL,
-                    end_question_7  time NULL,
                     question_8  boolean default false,
-                    start_question_8  time NULL,
-                    end_question_8  time NULL
+                    question_9  boolean default false
+                    
                 );
         """
         question_4 = """
-                                create table question_answer
+                                create table question_answer_1
                         (
                             id          SERIAL PRIMARY KEY,
                             chat_id     varchar not null,
                             answer_1    boolean default false,
                             answer_2       boolean default false,
-                            answer_3   boolean default false,
-                            answer_4      boolean default false
+                            answer_3   boolean default false
                         );
                 """
 
         question_8 = """
-                                        create table question_answer_end
+                                        create table question_answer_2
                                 (
                                     id          SERIAL PRIMARY KEY,
                                     chat_id     varchar not null,
                                     answer_1    boolean default false,
                                     answer_2       boolean default false,
-                                    answer_3   boolean default false,
-                                    answer_4      boolean default false
+                                    answer_3   boolean default false
                                 );
                         """
 

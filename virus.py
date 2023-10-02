@@ -1,3 +1,5 @@
+import random
+
 import telebot
 from datetime import datetime, timedelta
 import time
@@ -9,7 +11,17 @@ import keyboard.main_keyboard as keyboard
 import database.db_aa as db
 from Export.export import export_data
 
-bot = telebot.TeleBot('6079655503:AAEP47NoV2WLdqXiCWaeE2vqr7tBZWiBpjQ')
+bot = telebot.TeleBot('6359049037:AAHP4syCStXg6ZMnL0hF7MmrB83jxc6qcso')
+
+correct_answers = ['_Отличная работа!_', '_Попадание прямо в цель!_', '_Здорово, молодец!_',
+                   '_Прекрасно справляетесь!_']
+
+incorrect = ['_Хм.. даю ещё шанс_ 😊',
+             '_Предлагаю поразмыслить ещё_',
+             '_Нуууу... не то, увы_',
+             '_Так-так-так, почти! Но нет!_',
+             '_Давай-давай! Я в тебя верю!_',
+             ]
 
 
 def timeppp(message):
@@ -23,8 +35,9 @@ def text_check(text):
     return regex.sub('', text)
 
 
-menedjer = 123
-admin_id = '64783167'
+menedjer = 64783167
+# admin_id = '64783167'
+admin_id = '703608663'
 
 
 # 703608663
@@ -34,28 +47,17 @@ admin_id = '64783167'
 @bot.message_handler(commands=['start'])
 def handle_start(message):
     try:
-        # if (message.from_user.id == menedjer):
-        #     bot.send_message(message.chat.id, 'Вам доступен экспорт', reply_markup=keyboard.export())
-        # else:
-        info = db.Data(message.chat)
-        info.create()
-        bot.send_sticker(message.chat.id,
-                         "CAACAgIAAxkBAAEJWK5kjZlJ2sEiTMKMjs-oA8mQYG1nzgACpy0AAvJuaUjltZfIigUasC8E")
-        bot.send_message(message.chat.id, '_Привет, друзья!_\n'
-                                          '\n'
-                                          "_Покупатели авто бывают разные. Кто-то готов сразу забирать понравившуюся "
-                                          "модель, а кто-то задаёт миллион вопросов и проверяет каждую деталь прежде, "
-                                          "чем принять решение. Иногда вопросы могут показаться странными или даже "
-                                          "глупыми, но на что не пойдёшь ради удачной сделки?\n"
-                                          "\n"
-                                          "У нас тоже есть несколько вопросов и заданий про автоиндустрию. Сейчас мы "
-                                          "проверим, какая из команд лучше других готова к продаже абсолютно "
-                                          "любого автомобиля!\n"
-                                          "Ну, и как в конце любой сделки, попросим вас сфотографироваться рядом "
-                                          "с отгаданной машиной_ 🚙\n"
-                                          "\n"
-                                          "_Если готовы, введите_ *погнали*", parse_mode="Markdown", reply_markup=None)
-        bot.register_next_step_handler(message, rules)
+        if (message.from_user.id == menedjer):
+            bot.send_message(message.chat.id, 'Вам доступен экспорт', reply_markup=keyboard.export())
+        else:
+            bot.send_sticker(message.chat.id,
+                             "CAACAgIAAxkBAAEKbk5lGdRVqH3U0u8sIaxz7J8UgxkiawACZg8AAlGwsEiUHH3OCPuZqTAE")
+            bot.send_message(message.chat.id, '_Приветствую друзья, впереди миссия по спасению планеты, '
+                                              'но для начала давайте познакомимся._\n'
+                                              '\n'
+                                              "_Введите название вашей команды: (пример:_ *!Название*)\n"
+                             , parse_mode="Markdown", reply_markup=None)
+            bot.register_next_step_handler(message, rules)
     except Exception as error:
         print(f'handle_start: {error}')
         # bot.send_message(64783167, f'Бота запустил: {message.from_user.first_name}, @{message.from_user.username}')
@@ -84,88 +86,90 @@ def take(message):
 # -------------Правила---------------------------
 def rules(message):
     try:
-        if message.text.lower() in ['погнали']:
+        if message.content_type == 'text' and message.text[:1] == '!':
+            info = db.Data(message.chat)
+            info.create(message.text)
             bot.send_sticker(message.chat.id,
-                             "CAACAgIAAxkBAAEJWLBkjZli92j-kQqqcFb8ymUvrjjpCgACnzUAAvm7aUjr1Moqna8mOy8E")
+                             "CAACAgIAAxkBAAEKblBlGdRyqh9RVv5OcXMBzvuZMJWTJQACGxMAAlqS2EhjB6Z1XtCrlzAE")
             bot.send_message(message.chat.id,
-                             "_Прежде, чем мы начнём, расскажу об игре. Всё очень просто:\n"
+                             "_Отличное название. Теперь немного расскажу о правилах пользования ботом:_\n"
                              "\n"
-                             "1. Придумайте название вашей команды и напишите его в этот чат\n"
+                             "*ПРАВИЛА*\n"
                              "\n"
-                             "2. Вы играете командой, которая в этом чате. Игра продлится ровно 60 минут с "
-                             "кнопки /start. Время уже идёт!\n"
-                             "\n"
-                             "3. Вы получите меню с 8 заданиями. Выбирайте любое и нажимайте на него. "
-                             "Проходить можно в любом порядке.\n"
-                             "\n"
-                             "4. Я пришлю вопрос или задание, решив которое вы получите фотографию. "
-                             "Её необходимо повторить, используя обозначенный автомобиль.\n"
-                             "\n"
-                             "5. Оценивается ваша скорость прохождения задания, командная работа и  креативность "
-                             "фотографии, которую вы сделаете.\n"
-                             "\n"
-                             "6. Сделанную фотографию необходимо прислать сюда, в чат. После этого задание "
-                             "считается полностью пройденным и возле него появится 2 галочки.\n"
-                             "\n"
-                             "7. После прохождения всех заданий у вас останется время изучить оставшиеся автомобили "
-                             "выставки. А мы пока подведём итоги игры 🏆\n"
-                             "\n"
-                             "Всё понятно? Если да, введите_ *готовы*\n"
+                             "_Если все понятно введите_ *!Погнали* _и получите карту локаций. Они пригодятся "
+                             "вам во время игрового дня._\n"
                              "_Если возникнут какие-то вопросы, пиши в поддержку:_ [@blacklist_event](@blacklist_event)\n"
                              , parse_mode="Markdown")
-            bot.register_next_step_handler(message, keybor)
+            bot.register_next_step_handler(message, map1)
         else:
-            bot.send_chat_action(message.chat.id, 'typing')
-            bot.send_message(message.chat.id, '_Надо ввести_ *погнали*\n',
-                             parse_mode="Markdown")
             bot.register_next_step_handler(message, rules)
     except Exception as error:
         print(f'rules: {error}')
         bot.register_next_step_handler(message, rules)
 
 
-# -------------Меню---------------------------
-def keybor(message):
+# -------------Карта 1---------------------------
+def map1(message):
     try:
-        if message.text.lower() in ['готовы']:
-            bot.send_message(message.chat.id, "_Рад, что вы готовы ! Значит, пора начинать!\n"
-                                              "\n"
-                                              "Справа снизу есть кнопка, которая откроет меню, нажми её!_\n",
-                             parse_mode="Markdown", reply_markup=keyboard.keyboard(message.chat))
+        if message.content_type == 'text' and message.text[:1] == '!':
+            if message.text.lower() in ['!погнали']:
+
+                bot.send_message(message.chat.id, "_Карта 1_\n",
+                                 parse_mode="Markdown")
+                bot.register_next_step_handler(message, entrance1)
+            else:
+                bot.send_message(message.chat.id, '_Введите_ *!погнали*\n'
+                                 , parse_mode="Markdown")
+                bot.register_next_step_handler(message, map1)
         else:
-            bot.send_message(message.chat.id, '_Введите_ *готовы*\n'
-                             , parse_mode="Markdown")
-            bot.register_next_step_handler(message, keybor)
+            bot.register_next_step_handler(message, map1)
     except Exception as error:
         print(f'keybor: {error}')
-        bot.register_next_step_handler(message, keybor)
+        bot.register_next_step_handler(message, map1)
 
 
-# -------------Вопрос 1*---------------------------
-@bot.message_handler(func=lambda message: message.text.lower() == 'вопрос 1', content_types=['text'])
+# -------------Вход 1---------------------------
+def entrance1(message):
+    try:
+        if message.content_type == 'text' and message.text[:1] == '!':
+            if message.text.lower() in ['!безопасность']:
+                bot.send_sticker(message.chat.id,
+                                 "CAACAgIAAxkBAAEKblJlGdSN-UHEvZ5EdzZEn6YTjnwEtQACYw4AAgtaoEg7Cb-9icYZzTAE")
+                bot.send_message(message.chat.id, "_Справа снизу есть кнопка, которая откроет меню, нажмите её "
+                                                  "и выбирайте задание для спасения планеты!_\n",
+                                 parse_mode="Markdown", reply_markup=keyboard.keyboard1(message.chat))
+                start_question_at(message.chat, 'entrance1')
+            else:
+                bot.send_message(message.chat.id, '_Неверное кодовое слово_\n'
+                                 , parse_mode="Markdown")
+                bot.register_next_step_handler(message, entrance1)
+        else:
+            bot.register_next_step_handler(message, entrance1)
+    except Exception as error:
+        print(f'entrance1: {error}')
+        bot.register_next_step_handler(message, entrance1)
+
+
+# -------------задание 1*---------------------------
+@bot.message_handler(func=lambda message: message.text.lower() == 'задание 1', content_types=['text'])
 def question_1(message):
     try:
-        if check_end_time(message.chat):
-            start_question_at(message.chat, 'question_1')
+        if check_end_time(message.chat, 'entrance1'):
+            bot.send_sticker(message.chat.id,
+                             "CAACAgIAAxkBAAEKblJlGdSN-UHEvZ5EdzZEn6YTjnwEtQACYw4AAgtaoEg7Cb-9icYZzTAE")
             bot.send_message(message.chat.id,
-                             '_А вы когда-нибудь задавались вопросом: «а как бы выглядела моя машина, если бы была '
-                             'трансформером?».\n'
-                             '\n'
-                             'Я бы задался таким вопросом, будь у меня машина и права, ну или хотя бы руки_... _но я '
-                             'всего лишь бот, который даже не столь умный, как ChatGPT\n'
-                             '\n'
-                             'Хотя на загадки у меня ума хватает_😏', parse_mode="Markdown")
+                             '_Кажется, я знаю, где появился вирус! Его создал тот самый безумный ученый, '
+                             'который живет со мной по соседству! Он редко выходил из квартиры, а курьеры '
+                             'постоянно ему таскали какие-то заказы с химикатами. Я пробрался к нему в комнату '
+                             'и сделал фотографию его рабочего места. Надо понять кто он, чем пользовался, '
+                             'создавая вирус._', parse_mode="Markdown")
             bot.send_photo(message.chat.id,
-                           'AgACAgIAAxkBAANoZJANpxpH2jqIowoSWPaQr_2gXFwAAkjMMRsZVoBIZP6dil5qImkBAAMCAANzAAMvBA',
-                           caption='Внимательно изучите эту картинку. Попытайтесь понять, из какого автомобиля на '
-                                   'выставке трансформировался этот автобот\n'
-                                   '\n'
-                                   '🚙 _В ответ пришлите название этого автомобиля._', parse_mode="Markdown")
+                           'AgACAgIAAx0CZNgM2QADmWUbG40B6JmU7ZIAAaV-xohAtTW06gACgswxG2Ir4EghTuAQ0OKyeQEAAwIAA3kAAzAE')
+            bot.send_photo(message.chat.id,
+                           'AgACAgIAAx0CZNgM2QADmmUbG6WCrwLKzAwc2D33csaK3_lxAAKDzDEbYivgSAyqMUW4dZ2iAQADAgADeQADMAQ')
             bot.register_next_step_handler(message, question_1_end)
         else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
+            map_virus(message, False)
     except Exception as error:
         print(f'question_1: {error}')
         bot.register_next_step_handler(message, question_1)
@@ -173,34 +177,623 @@ def question_1(message):
 
 def question_1_end(message):
     try:
-        if check_end_time(message.chat):
-            if message.text.lower() in ["уаз", "уазик", "уаз469", "уаз 469"]:
-                bot.send_message(message.chat.id,
-                                 '_Молодцы 🥳 Вот вам фотография с советской классики!_', parse_mode="Markdown", )
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIBv2SQLFkhFsnmAQjJUOyPTniy9xelAALVzDEbGVaASPH3hxQ3EpXUAQADAgADeAADLwQ',
-                               caption='Какая добрая фотография! Кажется, он машет кому-то. Может, своей любимой?\n'
-                                       '\n'
-                                       'А у вас получится такая же? Предлагаю помахать кому-то даже все вместе)',
-                               parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_1_photo)
+        if check_end_time(message.chat, 'entrance1'):
+            if message.content_type == 'text' and message.text[:1] == '!':
+                if message.text.lower() in ['!лоперамид']:
+                    if check_answer(message.chat, 'question_answer_1', "answer_1"):
+                        bot.send_message(message.chat.id,
+                                         '_Не не не, лоперамид уже был_',
+                                         parse_mode="Markdown")
+                        bot.register_next_step_handler(message, question_1_end)
+                    else:
+                        bot.send_message(message.chat.id,
+                                         "_Верно, осталось немного._",
+                                         parse_mode="Markdown")
+                        change_answer(message.chat, 'question_answer_1', "answer_1")
+                        if check_answer_final(message.chat, 'question_answer_1'):
+                            final_question_1(message)
+                        else:
+                            bot.register_next_step_handler(message, question_1_end)
+                elif message.text.lower() in ['!стрептомицин']:
+                    if check_answer(message.chat, 'question_answer_1', "answer_2"):
+                        bot.send_message(message.chat.id,
+                                         '_Верно, но подобный ответ уже засчитан_',
+                                         parse_mode="Markdown")
+                        bot.register_next_step_handler(message, question_1_end)
+                    else:
+                        bot.send_message(message.chat.id,
+                                         "_Верно, осталось немного._",
+                                         parse_mode="Markdown")
+                        change_answer(message.chat, 'question_answer_1', "answer_2")
+                        if check_answer_final(message.chat, 'question_answer_1'):
+                            final_question_1(message)
+                        else:
+                            bot.register_next_step_handler(message, question_1_end)
+                elif message.text.lower() in ['!он уволен',
+                                              '!уволен',
+                                              '!его уволили',
+                                              '!уволили']:
+                    if check_answer(message.chat, 'question_answer_1', "answer_3"):
+                        bot.send_message(message.chat.id,
+                                         '_Уже известно, что он уволен_',
+                                         parse_mode="Markdown")
+                        bot.register_next_step_handler(message, question_1_end)
+                    else:
+                        bot.send_message(message.chat.id,
+                                         "_Верно, осталось немного._",
+                                         parse_mode="Markdown")
+                        change_answer(message.chat, 'question_answer_1', "answer_3")
+                        if check_answer_final(message.chat, 'question_answer_1'):
+                            final_question_1(message)
+                        else:
+                            bot.register_next_step_handler(message, question_1_end)
+                else:
+                    bot.send_chat_action(message.chat.id, 'typing')
+                    bot.send_message(message.chat.id, random.choice(incorrect))
+                    bot.register_next_step_handler(message, question_1_end)
             else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
                 bot.register_next_step_handler(message, question_1_end)
         else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
+            map_virus(message, False)
     except Exception as error:
-        print(f'antiquiz: {error}')
+        print(f'question_1_end: {error}')
         bot.register_next_step_handler(message, question_1_end)
 
 
-def question_1_photo(message):
+def final_question_1(message):
+    change(message.chat, "question_1")
+    if check_final(message.chat, 1):
+        map_virus(message, True)
+    else:
+        bot.send_message(message.chat.id,
+                         '_Отличный результат! Можете выбрать следующее задание, или готовиться к началу дня._',
+                         parse_mode="Markdown", reply_markup=keyboard.keyboard1(message.chat))
+
+
+# -------------задание 2*---------------------------
+@bot.message_handler(func=lambda message: message.text.lower() == 'задание 2', content_types=['text'])
+def question_2(message):
     try:
-        if check_end_time(message.chat):
+        if check_end_time(message.chat, 'entrance1'):
+            bot.send_sticker(message.chat.id,
+                             "CAACAgIAAxkBAAEKblhlGdTr3dDdyJULGEB0WO28ZDb66QACcg8AAiRaoEiI1kAytRS9zjAE")
+            bot.send_message(message.chat.id,
+                             '_Посмотрите! Что это? Какое-то зашифрованное послание. Может это ключ к тому, '
+                             'что покончит с вирусом навсегда?_\n'
+                             '\n'
+                             '_Ответ пишите в формате:_ *!Ответ*', parse_mode="Markdown")
+            bot.send_audio(message.chat.id,
+                           'CQACAgIAAxkBAAMNZRsjxXo3X7WNEV4zH47qqsSFX8sAAt8yAAKYE9hI_tJ4qKZ4K44wBA')
+            bot.register_next_step_handler(message, question_2_end)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_2: {error}')
+        bot.register_next_step_handler(message, question_2)
+
+
+def question_2_end(message):
+    try:
+        if check_end_time(message.chat, 'entrance1'):
+            if message.content_type == 'text' and message.text[:1] == '!':
+                if message.text.lower() in ["!кислород", "!o2", "!о2"]:
+                    change(message.chat, "question_2")
+                    if check_final(message.chat, 1):
+                        map_virus(message, True)
+                    else:
+                        bot.send_message(message.chat.id,
+                                         '_Отличный результат! Можете выбрать следующее задание, или готовиться '
+                                         'к началу дня._'
+                                         , parse_mode="Markdown", reply_markup=keyboard.keyboard1(message.chat))
+                else:
+                    bot.send_chat_action(message.chat.id, 'typing')
+                    bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
+                                     parse_mode="Markdown")
+                    bot.register_next_step_handler(message, question_2_end)
+            else:
+                bot.register_next_step_handler(message, question_2_end)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_2_end: {error}')
+        bot.register_next_step_handler(message, question_2_end)
+
+
+# -------------задание 3---------------------------
+
+@bot.message_handler(func=lambda message: message.text.lower() == 'задание 3', content_types=['text'])
+def question_3(message):
+    try:
+        if check_end_time(message.chat, 'entrance1'):
+            bot.send_sticker(message.chat.id,
+                             "CAACAgIAAxkBAAEKblplGdUGFTsIE3Q-1OKY2du7cnIEfwACWg4AAsQNmUiGtb3-255fDTAE")
+            bot.send_message(message.chat.id,
+                             '_Сейчас з вам предстоит выяснить как давно происходит распространение вируса. '
+                             'Похоже именно на этом калькуляторе проводили расчеты, даже записку с ними оставили. '
+                             'Воспользуйтесь запиской и определите срок заражения планеты._\n'
+                             '\n'
+                             '_Ответ пишите в формате:_ *!Ответ*', parse_mode="Markdown")
+            bot.send_photo(message.chat.id,
+                           'AgACAgIAAxkBAAMOZRsnuV0F9x_VOb1f8yPGB6GevBAAAsPKMRuYE9hIowF1e2rbhO0BAAMCAAN5AAMwBA')
+            bot.register_next_step_handler(message, question_3_end)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_3: {error}')
+        bot.register_next_step_handler(message, question_3)
+
+
+def question_3_end(message):
+    try:
+        if check_end_time(message.chat, 'entrance1'):
+            if message.content_type == 'text' and message.text[:1] == '!':
+                if message.text.lower() in ["!три квартала", "!триквартала", "!3 квартала", "!3квартала"]:
+                    change(message.chat, "question_3")
+                    if check_final(message.chat, 1):
+                        map_virus(message, True)
+                    else:
+                        bot.send_message(message.chat.id,
+                                         '_Отличный результат! Можете выбрать следующее задание, или готовиться '
+                                         'к началу дня._'
+                                         , parse_mode="Markdown", reply_markup=keyboard.keyboard1(message.chat))
+                else:
+                    bot.send_chat_action(message.chat.id, 'typing')
+                    bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
+                                     parse_mode="Markdown")
+                    bot.register_next_step_handler(message, question_3_end)
+            else:
+                bot.register_next_step_handler(message, question_3_end)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_3_end: {error}')
+        bot.register_next_step_handler(message, question_3_end)
+
+
+# -------------Вход 2---------------------------
+
+@bot.message_handler(func=lambda message: message.text.lower() == '!изоляция', content_types=['text'])
+def entrance2(message):
+    try:
+        if message.content_type == 'text' and message.text[:1] == '!':
+            if message.text.lower() in ['!изоляция']:
+                bot.send_sticker(message.chat.id,
+                                 "CAACAgIAAxkBAAEKblxlGdUewRG6zqFeFZax9SYN23YWKQACaA0AArShoUgeWJn3yocDQTAE")
+                bot.send_message(message.chat.id, "_Справа снизу есть кнопка, которая откроет меню, нажмите "
+                                                  "её и выбирайте задание для спасения планеты!_\n",
+                                 parse_mode="Markdown", reply_markup=keyboard.keyboard2(message.chat))
+                start_question_at(message.chat, 'entrance2')
+            else:
+                bot.send_message(message.chat.id, '_Неверное кодовое слово_\n'
+                                 , parse_mode="Markdown")
+                bot.register_next_step_handler(message, entrance2)
+        else:
+            bot.register_next_step_handler(message, entrance2)
+    except Exception as error:
+        print(f'entrance2: {error}')
+        bot.register_next_step_handler(message, entrance2)
+
+
+# -------------задание 4---------------------------
+@bot.message_handler(func=lambda message: message.text.lower() == 'задание 4', content_types=['text'])
+def question_4(message):
+    try:
+        if check_end_time(message.chat, 'entrance2'):
+            bot.send_sticker(message.chat.id,
+                             "CAACAgIAAxkBAAEKcHZlGzJbXZujDo1EpShuaDl2E8f-cwACrQ4AAuR6QUt_BjUr8hmSxjAE")
+            bot.send_message(message.chat.id,
+                             '_Химия – помощник любого ученого разрабатывающего лекарства. А смешение цветов – '
+                             'простейшая химия. Кажется этот химик разрабатывал антидот для болезней желудка, но что '
+                             'тут написано? Может вам даже чем-то поможет цвет его блокнота._\n'
+                             '\n'
+                             '_Ответ пишите в формате:_ *!Ответ*', parse_mode="Markdown")
+            bot.send_photo(message.chat.id,
+                           'AgACAgIAAxkBAAMPZRsyzFk271jf-zpzfMkVj6BxEQYAAtLKMRuYE9hIOVA7c0qVMzMBAAMCAAN5AAMwBA')
+            bot.register_next_step_handler(message, question_4_end)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_4: {error}')
+        bot.register_next_step_handler(message, question_4)
+
+
+def question_4_end(message):
+    try:
+        if check_end_time(message.chat, 'entrance2'):
+            if message.content_type == 'text' and message.text[:1] == '!':
+                if message.text.lower() in ["!грелин"]:
+                    change(message.chat, "question_4")
+                    if check_final(message.chat, 2):
+                        map_virus(message, True)
+                    else:
+                        bot.send_message(message.chat.id,
+                                         '_Отличный результат! Можете выбрать следующее задание, или готовиться '
+                                         'к началу дня._'
+                                         , parse_mode="Markdown", reply_markup=keyboard.keyboard2(message.chat))
+                else:
+                    bot.send_chat_action(message.chat.id, 'typing')
+                    bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
+                                     parse_mode="Markdown")
+                    bot.register_next_step_handler(message, question_4_end)
+            else:
+                bot.register_next_step_handler(message, question_4_end)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_4_end: {error}')
+        bot.register_next_step_handler(message, question_4_end)
+
+
+# -------------задание 5---------------------------
+@bot.message_handler(func=lambda message: message.text.lower() == 'задание 5', content_types=['text'])
+def question_5(message):
+    try:
+        if check_end_time(message.chat, 'entrance2'):
+            bot.send_sticker(message.chat.id,
+                             "CAACAgIAAxkBAAEKcHZlGzJbXZujDo1EpShuaDl2E8f-cwACrQ4AAuR6QUt_BjUr8hmSxjAE")
+            bot.send_message(message.chat.id,
+                             '_Химия – помощник любого ученого разрабатывающего лекарства. А смешение цветов – '
+                             'простейшая химия. Кажется этот химик разрабатывал антидот для болезней желудка, но что '
+                             'тут написано? Может вам даже чем-то поможет цвет его блокнота._\n'
+                             '\n'
+                             'Перейдите по ссылке. Ответ пишите в формате: *!Ответ*', parse_mode="Markdown")
+            bot.send_message(message.chat.id, 'https://tinyurl.com/ydb9qczv', disable_web_page_preview=True)
+            bot.send_photo(message.chat.id,
+                           'AgACAgIAAxkBAAMQZRs2emUt1_doX7wS5xxDKoTGY4UAAt3KMRuYE9hI1BTfSck3RnwBAAMCAAN5AAMwBA')
+            bot.register_next_step_handler(message, question_5_end)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_5: {error}')
+        bot.register_next_step_handler(message, question_5)
+
+
+def question_5_end(message):
+    try:
+        if check_end_time(message.chat, 'entrance2'):
+            if message.content_type == 'text' and message.text[:1] == '!':
+                if message.text.lower() in ['!пингвин', '!пингвина']:
+                    if check_answer(message.chat, 'question_answer_2', "answer_1"):
+                        bot.send_message(message.chat.id,
+                                         '_Не не не, пингвин уже был_',
+                                         parse_mode="Markdown")
+                        bot.register_next_step_handler(message, question_5_end)
+                    else:
+                        bot.send_message(message.chat.id,
+                                         "_Верно, осталось немного._",
+                                         parse_mode="Markdown")
+                        change_answer(message.chat, 'question_answer_2', "answer_1")
+                        if check_answer_final(message.chat, 'question_answer_2'):
+                            final_question_1(message)
+                        else:
+                            bot.register_next_step_handler(message, question_5_end)
+                elif message.text.lower() in ["!ентер", "!энтер", "!enter"]:
+                    if check_answer(message.chat, 'question_answer_2', "answer_2"):
+                        bot.send_message(message.chat.id,
+                                         '_Верно, но подобный ответ уже засчитан_',
+                                         parse_mode="Markdown")
+                        bot.register_next_step_handler(message, question_5_end)
+                    else:
+                        bot.send_message(message.chat.id,
+                                         "_Верно, осталось немного._",
+                                         parse_mode="Markdown")
+                        change_answer(message.chat, 'question_answer_2', "answer_2")
+                        if check_answer_final(message.chat, 'question_answer_2'):
+                            final_question_1(message)
+                        else:
+                            bot.register_next_step_handler(message, question_5_end)
+                elif message.text.lower() in ["!огнетушитель", "!огнетушители"]:
+                    if check_answer(message.chat, 'question_answer_2', "answer_3"):
+                        bot.send_message(message.chat.id,
+                                         '_Верно, но подобный ответ уже засчитан_',
+                                         parse_mode="Markdown")
+                        bot.register_next_step_handler(message, question_5_end)
+                    else:
+                        bot.send_message(message.chat.id,
+                                         "_Верно, осталось немного._",
+                                         parse_mode="Markdown")
+                        change_answer(message.chat, 'question_answer_2', "answer_3")
+                        if check_answer_final(message.chat, 'question_answer_2'):
+                            final_question_1(message)
+                        else:
+                            bot.register_next_step_handler(message, question_5_end)
+                else:
+                    bot.send_chat_action(message.chat.id, 'typing')
+                    bot.send_message(message.chat.id, random.choice(incorrect))
+                    bot.register_next_step_handler(message, question_5_end)
+            else:
+                bot.register_next_step_handler(message, question_5_end)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_5_end: {error}')
+        bot.register_next_step_handler(message, question_5_end)
+
+
+def final_question_2(message):
+    change(message.chat, "question_5")
+    if check_final(message.chat, 2):
+        map_virus(message, True)
+    else:
+        bot.send_message(message.chat.id,
+                         '_Отличный результат! Можете выбрать следующее задание, или готовиться к началу дня._',
+                         parse_mode="Markdown", reply_markup=keyboard.keyboard2(message.chat))
+
+
+# -------------задание 6---------------------------
+@bot.message_handler(func=lambda message: message.text.lower() == 'задание 6', content_types=['text'])
+def question_6(message):
+    try:
+        if check_end_time(message.chat, 'entrance2'):
+            bot.send_sticker(message.chat.id,
+                             "CAACAgIAAxkBAAEKbmNlGdV4jvO1gdlP7ZGQ8bLkAstpdQACxQ4AAoxEmUgDii518Wg0ezAE")
+            bot.send_message(message.chat.id,
+                             '_Некоторые зараженные районы не могут связаться с нами оБычными способами. '
+                             'но они пРидумали другой, кАк передавать нам свои сообщенИя. вниматеЛьно смотрите на '
+                             'видео и поймите что они пытаются нам сказатЬ._\n'
+                             '\n'
+                             '_Ответ пишите в формате:_ *!Ответ*', parse_mode="Markdown")
+            bot.send_video(message.chat.id,
+                           'BAACAgIAAxkBAAMRZRs23qZP7ny-aUxol75C4Fd6JrEAAhgzAAKYE9hIBqahMmaROqAwBA')
+            bot.register_next_step_handler(message, question_6_end)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_6: {error}')
+        bot.register_next_step_handler(message, question_6)
+
+
+def question_6_end(message):
+    try:
+        if check_end_time(message.chat, 'entrance2'):
+            if message.content_type == 'text' and message.text[:1] == '!':
+                if message.text.lower() in ["!спасибо"]:
+                    change(message.chat, "question_6")
+                    if check_final(message.chat, 2):
+                        map_virus(message, True)
+                    else:
+                        bot.send_message(message.chat.id,
+                                         '_Отличный результат, похоже этот район уже спасли и они благодарят вас! '
+                                         'Можете выбрать следующее задание, или готовиться к началу дня._'
+                                         , parse_mode="Markdown", reply_markup=keyboard.keyboard2(message.chat))
+                else:
+                    bot.send_chat_action(message.chat.id, 'typing')
+                    bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
+                                     parse_mode="Markdown")
+                    bot.register_next_step_handler(message, question_6_end)
+            else:
+                bot.register_next_step_handler(message, question_6_end)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_6_end: {error}')
+        bot.register_next_step_handler(message, question_6_end)
+
+
+# -------------Вход 3---------------------------
+
+@bot.message_handler(func=lambda message: message.text.lower() == '!антивирус', content_types=['text'])
+def entrance3(message):
+    try:
+        if message.content_type == 'text' and message.text[:1] == '!':
+            if message.text.lower() in ['!антивирус']:
+                bot.send_sticker(message.chat.id,
+                                 "CAACAgIAAxkBAAEKbmdlGdWOA__HQsInmtWk_e7wd4IyBQACtA4AAgvSoEigkT622AoTTTAE")
+                bot.send_message(message.chat.id, "_Справа снизу есть кнопка, которая откроет меню, нажмите "
+                                                  "её и выбирайте задание для спасения планеты!_\n",
+                                 parse_mode="Markdown", reply_markup=keyboard.keyboard3(message.chat))
+                start_question_at(message.chat, 'entrance3')
+            else:
+                bot.send_message(message.chat.id, '_Неверное кодовое слово_\n'
+                                 , parse_mode="Markdown")
+                bot.register_next_step_handler(message, entrance3)
+        else:
+            bot.register_next_step_handler(message, entrance3)
+    except Exception as error:
+        print(f'entrance3: {error}')
+        bot.register_next_step_handler(message, entrance3)
+
+
+# -------------задание 7*---------------------------
+@bot.message_handler(func=lambda message: message.text.lower() == 'задание 7', content_types=['text'])
+def question_7(message):
+    try:
+        if check_end_time(message.chat, 'entrance3'):
+            bot.send_sticker(message.chat.id,
+                             "CAACAgIAAxkBAAEKbmdlGdWOA__HQsInmtWk_e7wd4IyBQACtA4AAgvSoEigkT622AoTTTAE")
+            bot.send_message(message.chat.id,
+                             '_После болезни у многих появляются провалы в памяти, но ничего, мы готовы им помочь '
+                             'по уникальной методике. Сейчас будут приходить фотографии на которых что-то отсутствует,'
+                             ' напишите что закрыто._\n'
+                             '\n'
+                             '_Ответ пишите в формате:_ *!Ответ*', parse_mode="Markdown")
+            bot.send_photo(message.chat.id,
+                           'AgACAgIAAxkBAAMSZRs6QWkgbzJVYQlUAj4t0gRmxmIAAurKMRuYE9hIielVsagQW1kBAAMCAAN5AAMwBA')
+            bot.register_next_step_handler(message, question_7_1)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_7: {error}')
+        bot.register_next_step_handler(message, question_7)
+
+
+def question_7_1(message):
+    try:
+        if check_end_time(message.chat, 'entrance3'):
+            if message.content_type == 'text' and message.text[:1] == '!':
+                if message.text.lower() in ["!свиток", "!золотой свиток"]:
+                    if check_final(message.chat, 3):
+                        map_virus(message, True)
+                    else:
+                        bot.send_photo(message.chat.id,
+                                       'AgACAgIAAxkBAAMTZRs7B3dsViXK0sK_IKzIBqRAAAHQAALsyjEbmBPYSLhl6UoAAe4RWQEAAwIAA3kAAzAE',
+                                       caption='_Отличный результат!_'
+                                       , parse_mode="Markdown")
+                        bot.send_photo(message.chat.id,
+                                       'AgACAgIAAxkBAAMUZRs7a5fYXcOeWObKsM5shhiKffUAAu7KMRuYE9hINSEGPq0r8PMBAAMCAAN5AAMwBA')
+                    bot.register_next_step_handler(message, question_7_2)
+                else:
+                    bot.send_chat_action(message.chat.id, 'typing')
+                    bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
+                                     parse_mode="Markdown")
+                    bot.register_next_step_handler(message, question_7_1)
+            else:
+                bot.register_next_step_handler(message, question_7_1)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_7_1: {error}')
+        bot.register_next_step_handler(message, question_7_1)
+
+
+def question_7_2(message):
+    try:
+        if check_end_time(message.chat, 'entrance3'):
+            if message.content_type == 'text' and message.text[:1] == '!':
+                if message.text.lower() in ["!мона лиза", "!картина мона лиза", "!джаконда",
+                                            "!картинка джаконды", "!картина моны лизы"]:
+                    if check_final(message.chat, 3):
+                        map_virus(message, True)
+                    else:
+                        bot.send_photo(message.chat.id,
+                                       'AgACAgIAAxkBAAMWZRs771O7OqewdA0u3_ThIYdE2hwAAu_KMRuYE9hIr0ysoyPXAdUBAAMCAAN5AAMwBA',
+                                       caption='_Отличный результат!_'
+                                       , parse_mode="Markdown")
+                        bot.send_photo(message.chat.id,
+                                       'AgACAgIAAxkBAAMXZRs8If47YHu-Wq5Zdr-I1lcORukAAvDKMRuYE9hIFHSe_ab9XFwBAAMCAAN5AAMwBA')
+                    bot.register_next_step_handler(message, question_7_3)
+                else:
+                    bot.send_chat_action(message.chat.id, 'typing')
+                    bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
+                                     parse_mode="Markdown")
+                    bot.register_next_step_handler(message, question_7_2)
+            else:
+                bot.register_next_step_handler(message, question_7_2)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_7_2: {error}')
+        bot.register_next_step_handler(message, question_7_2)
+
+
+def question_7_3(message):
+    try:
+        if check_end_time(message.chat, 'entrance3'):
+            if message.content_type == 'text' and message.text[:1] == '!':
+                if message.text.lower() in ["!статуя", "!статуя иисуса", "!статуя иисусу", "!иисус", "!памятник",
+                                            "!памятник иисусу", "!памятник иисуса"]:
+                    change(message.chat, "question_7")
+                    if check_final(message.chat, 3):
+                        bot.send_photo(message.chat.id,
+                                       'AgACAgIAAxkBAAMYZRs9UMdXs56lovHy-jpoSE2xDv4AAvLKMRuYE9hIMtz5OxSgpQkBAAMCAAN5AAMwBA',
+                                       caption='_Отличный результат!_'
+                                       , parse_mode="Markdown")
+                        end(message, True)
+                    else:
+                        bot.send_photo(message.chat.id,
+                                       'AgACAgIAAxkBAAMYZRs9UMdXs56lovHy-jpoSE2xDv4AAvLKMRuYE9hIMtz5OxSgpQkBAAMCAAN5AAMwBA',
+                                       caption='_Отличный результат! Можете выбрать следующее задание, или готовиться к началу дня._'
+                                       , parse_mode="Markdown", reply_markup=keyboard.keyboard3(message.chat))
+                else:
+                    bot.send_chat_action(message.chat.id, 'typing')
+                    bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
+                                     parse_mode="Markdown")
+                    bot.register_next_step_handler(message, question_6_end)
+            else:
+                bot.register_next_step_handler(message, question_6_end)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_6_end: {error}')
+        bot.register_next_step_handler(message, question_6_end)
+
+
+# -------------задание 8*---------------------------
+@bot.message_handler(func=lambda message: message.text.lower() == 'задание 8', content_types=['text'])
+def question_8(message):
+    try:
+        if check_end_time(message.chat, 'entrance3'):
+            bot.send_sticker(message.chat.id,
+                             "CAACAgIAAxkBAAEKbmtlGdXYm0HqrFgex3v6lzBXG1IJEgACyw0AAjR_oEiWR2jcYJrkpjAE")
+            bot.send_message(message.chat.id,
+                             '_Кажется мы нашли разработки наших коллег по тому как предотвратить этот вирус. '
+                             ']Они использовали совсем не сложный способ кодирования, всего лишь нужно найти слова '
+                             'в этом прямоугольнике из букв и ответить на вопрос, которым они задавались. '
+                             'Пример шифровки тоже покажем._\n'
+                             '\n'
+                             '_Ответ пишите в формате:_ *!Ответ*', parse_mode="Markdown")
+            bot.send_photo(message.chat.id,
+                           'AgACAgIAAxkBAAMZZRs-SnIJYLE92QkCAaG5utwioKgAAvPKMRuYE9hIkGAkFATHyTkBAAMCAAN5AAMwBA')
+            bot.send_photo(message.chat.id,
+                           'AgACAgIAAxkBAAMaZRs-X8L5L6H-VnZl7jStd0WIP8cAAvTKMRuYE9hIln6CWHUS268BAAMCAAN5AAMwBA')
+            bot.register_next_step_handler(message, question_8_end)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_8: {error}')
+        bot.register_next_step_handler(message, question_8)
+
+
+def question_8_end(message):
+    try:
+        if check_end_time(message.chat, 'entrance3'):
+            if message.content_type == 'text' and message.text[:1] == '!':
+                if message.text.lower() in ["!кишечная палочка", "!кишечнаяпалочка"]:
+                    change(message.chat, "question_8")
+                    if check_final(message.chat, 3):
+                        map_virus(message, True)
+                    else:
+                        bot.send_message(message.chat.id,
+                                         '_Отличный результат! Можете выбрать следующее задание, '
+                                         'или готовиться к началу дня_'
+                                         , parse_mode="Markdown", reply_markup=keyboard.keyboard3(message.chat))
+                else:
+                    bot.send_chat_action(message.chat.id, 'typing')
+                    bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
+                                     parse_mode="Markdown")
+                    bot.register_next_step_handler(message, question_8_end)
+            else:
+                bot.register_next_step_handler(message, question_8_end)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_8_end: {error}')
+        bot.register_next_step_handler(message, question_8_end)
+
+
+# -------------задание 9*---------------------------
+photo = [
+    'AgACAgIAAxkBAAMbZRs_UrnDSb6-4p9xqa-hKnL5C4kAAvXKMRuYE9hImm_eEIRlufUBAAMCAAN5AAMwBA',
+    'AgACAgIAAxkBAAMcZRs_YebDtodiKA7tzGQkLk6poCgAAvbKMRuYE9hIY8TnngkYzC8BAAMCAAN5AAMwBA',
+    'AgACAgIAAxkBAAMdZRs_cryQWHtJpXT62c6D47lwrUAAAvfKMRuYE9hIYpAD2a5Nx40BAAMCAAN5AAMwBA',
+    'AgACAgIAAxkBAAMeZRs_fqavGwxc6F_FcaAlxMumJFYAAvjKMRuYE9hI5YygWuAF_6gBAAMCAAN5AAMwBA'
+]
+
+
+@bot.message_handler(func=lambda message: message.text.lower() == 'задание 9', content_types=['text'])
+def question_9(message):
+    print(message)
+    try:
+        if check_end_time(message.chat, 'entrance3'):
+            bot.send_sticker(message.chat.id,
+                             "CAACAgIAAxkBAAEKbmtlGdXYm0HqrFgex3v6lzBXG1IJEgACyw0AAjR_oEiWR2jcYJrkpjAE")
+            bot.send_message(message.chat.id,
+                             '_Мы хотим запомнить наших спасителей, поэтому сделайте пожалуйста нам фотографию '
+                             'на память, чтобы она навсегда осталась в архивах нашей планеты. Пример отправляем вам, '
+                             'постарайтесь чтобы ваше фото было похоже, иначе не примем._\n', parse_mode="Markdown")
+            bot.send_photo(message.chat.id,
+                           random.choice(photo))
+            bot.register_next_step_handler(message, question_9_end)
+        else:
+            map_virus(message, False)
+    except Exception as error:
+        print(f'question_9: {error}')
+        bot.register_next_step_handler(message, question_9)
+
+
+def question_9_end(message):
+    try:
+        if check_end_time(message.chat, 'entrance3'):
             if message.content_type == 'photo':
                 keyboard_inline = types.InlineKeyboardMarkup()
                 confirm_button = types.InlineKeyboardButton('Подтвердить', callback_data=f'confirm')
@@ -209,1347 +802,155 @@ def question_1_photo(message):
                 bot.send_photo(admin_id, message.photo[-1].file_id,
                                caption=f'Подтвердите отправку этой фотографии для "{message.chat.title}".\n'
                                        f'\n'
-                                       f'Задание 1 (УАЗ):\n'
+                                       f'Задание 9:\n'
                                        f'\n'
-                                       f'[ {message.chat} ]\n'
-                                       f'#question_1#',
+                                       f'[ {message.chat} ]\n',
                                reply_markup=keyboard_inline)
 
                 @bot.callback_query_handler(func=lambda call: True)
                 def callback_handler(call):
                     text = call.message.caption
                     match = re.search(r'\[(.*?)\]', text)
-                    question = re.search(r'\#(.*?)\#', text)
                     text = match.group(1).replace("'", "\"")
                     text_end = text.replace("None", "null")
                     value = json.loads(text_end)
                     chat = types.Chat.de_json(value)
                     if call.data == 'confirm':
-                        end_question_at(chat, question.group(1))
+                        change(chat, 'question_9')
                         bot.send_message(call.from_user.id, f'Фотография подтверждена у \"{chat.title}\"')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(chat.id, 'Хм, уверен это фото оценят по достоинству.\nОткрывай меню, '
-                                                  'поехали дальше 👍🏼', reply_markup=keyboard.keyboard(chat))
-                        if check_final(chat):
-                            end_at(chat)
-                            bot.send_sticker(chat.id,
-                                             'CAACAgIAAxkBAAEJWLJkjZnnq-9Z6FIKDa7Sjzjv2udGTgACaS8AAmjYaUgPYCMFmg1OtC8E')
-                            bot.send_message(chat.id, 'Вау! 🥳🥳🥳\n'
-                                                      '\n'
-                                                      'Я в восторге от того, как хорошо вы разбираетесь в автомобилях.'
-                                                      'Не каждый смог бы пройти все задания и ответить на все вопросы. '
-                                                      'Ещё и ваши фотографии, аплодирую стоя.\n'
-                                                      '\n'
-                                                      'Скоро ведущий объявит результаты игры, а вы пока можете '
-                                                      'ещё насладиться выставкой\n'
-                                                      '❤️', reply_markup=None)
+                        bot.send_message(chat.id,
+                                         '_Отличный результат! Можете выбрать следующее задание, или готовиться к началу дня_',
+                                         parse_mode="Markdown",
+                                         reply_markup=keyboard.keyboard3(chat))
+                        if check_final(chat, 3):
+                            markup = telebot.types.ReplyKeyboardRemove()
+                            bot.send_sticker(message.chat.id,
+                                             "CAACAgIAAxkBAAEKbkxlGdO6slpcsB9jOt2Ge6m2cZVuywACaA0AArShoUgeWJn3yocDQTAE ")
+                            bot.send_message(message.chat.id,
+                                             '_Мне кажется вы остановили  распространение вируса. Поздравляю! '
+                                             'Осталось лишь понять, какая команда внесла больший вклад, '
+                                             'а пока отдыхайте._\n',
+                                             parse_mode="Markdown", reply_markup=markup)
                     elif call.data == 'cancel':
                         bot.send_message(chat.id, 'Хм.. даю ещё шанс 😊')
-                        bot.delete_message(call.from_user.id, call.message.id)
                         bot.send_message(call.from_user.id, f'Фотография отменена у \"{chat.title}\"')
-                        bot.register_next_step_handler(message, question_1_photo)
+                        data = {
+                            "message_id": 1,
+                            "from": {
+                                "id": 703608663,
+                                "is_bot": False,
+                                "first_name": "Dmitriy",
+                                "username": "Lis_Di",
+                                "last_name": "None",
+                                "language_code": "ru",
+                                "can_join_groups": "None",
+                                "can_read_all_group_messages": "None",
+                                "supports_inline_queries": "None",
+                                "is_premium": "None",
+                                "added_to_attachment_menu": "None"
+                            },
+                            "chat": {
+                                "id": chat.id,
+                                "type": chat.type,
+                                "title": chat.title
+                            },
+                            "date": 1694822792,
+                            "text": "Стал"
+                        }
+
+                        json_data = json.dumps(data, indent=3, ensure_ascii=False)
+
+                        fake_message = types.Message(message_id=1, date=1234567890, chat=chat,
+                                                     from_user=message.from_user,
+                                                     content_type="text", options=[], json_string=json_data)
+                        print(fake_message)
+                        bot.register_next_step_handler(fake_message, question_9_end)
             else:
                 bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
+                bot.send_message(message.chat.id, 'Нужно фото\n',
                                  parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_1_photo)
+                bot.register_next_step_handler(message, question_9_end)
         else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
+            map_virus(message, False)
     except Exception as error:
-        print(f'question_1_photo: {error}')
-        bot.register_next_step_handler(message, question_1_photo)
+        print(f'question_9_end: {error}')
+        bot.register_next_step_handler(message, question_9_end)
+
+
+# -------------Конец---------------------------
+def end(message, flag):
+    if flag:
+        markup = telebot.types.ReplyKeyboardRemove()
+        bot.send_sticker(message.chat.id,
+                         "CAACAgIAAxkBAAEKbkxlGdO6slpcsB9jOt2Ge6m2cZVuywACaA0AArShoUgeWJn3yocDQTAE ")
+        bot.send_message(message.chat.id, '_Мне кажется вы остановили  распространение вируса. Поздравляю! '
+                                          'Осталось лишь понять, какая команда внесла больший вклад, а пока отдыхайте._\n',
+                         parse_mode="Markdown", reply_markup=markup)
+    else:
+        markup = telebot.types.ReplyKeyboardRemove()
+        bot.send_sticker(message.chat.id,
+                         "CAACAgIAAxkBAAEKbkxlGdO6slpcsB9jOt2Ge6m2cZVuywACaA0AArShoUgeWJn3yocDQTAE ")
+        bot.send_message(message.chat.id,
+                         '_Дажен не смотря на то, что время вышло вы все равно остановили  распространение вируса. Поздравляю! '
+                         'Осталось лишь понять, какая команда внесла больший вклад, а пока отдыхайте._\n',
+                         parse_mode="Markdown", reply_markup=markup)
+    # bot.register_next_step_handler(message, end)
+
+
+# -------------Карта---------------------------
+def map_virus(message, flag):
+    if flag:
+        bot.send_message(message.chat.id, 'Вы справились со всеми заданиями, ожидайте наставлений ведущего')
+    else:
+        bot.send_message(message.chat.id, 'К сожалению время вышло, ожидайте наставлений ведущего')
 
-
-# -------------Вопрос 2*---------------------------
-@bot.message_handler(func=lambda message: message.text.lower() == 'вопрос 2', content_types=['text'])
-def question_2(message):
-    try:
-        if check_end_time(message.chat):
-            start_question_at(message.chat, 'question_2')
-            bot.send_message(message.chat.id,
-                             '_Всем нам известно множество сайтов с отзывами на что-либо. На кино, на игрушки, на '
-                             'электронику, одежду и т.д. Но сталкивались ли вы в жизни с отзывами, которые ну '
-                             'настолько правдиво написаны, что порой даже конкретных деталей описываемой вещи '
-                             'не нужно?_\n'
-                             '\n'
-                             '_Нам вот удалось найти один такой_ 😱', parse_mode="Markdown", )
-            bot.send_voice(message.chat.id,
-                           'AwACAgQAAxkBAAICF2SQWDRq8lKX44RRfy8V9TEbYYl2AALNPwACjHeBUNTWKcX-my1TLwQ',
-                           caption='Послушайте аудиосообщение\n'
-                                   '\n'
-                                   '🚙 _В ответ напишите, на какую машину этот отзыв._', parse_mode="Markdown")
-            bot.register_next_step_handler(message, question_2_end)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_2: {error}')
-        bot.register_next_step_handler(message, question_2)
-
-
-def question_2_end(message):
-    try:
-        if check_end_time(message.chat):
-            if message.text.lower() in ["бугатти", "bugatti", "bugatti veyron grand sport", "бугатти вейрон",
-                                        "bugatti veyron"]:
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAICHmSQYt_Bovz6JOCGA0hpXyOiYxoaAAL6zTEbGVaASP1OCBLYputUAQADAgADeQADLwQ',
-                               caption='_Молодцы\n'
-                                       'Эти ребята на фото выглядят как настоящая команда. Тут ходят слухи, что и вы '
-                                       'коллектив хоть куда. Докажите это, повторив фото_ 🔥'
-                               , parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_2_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_2_end)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_2_end: {error}')
-        bot.register_next_step_handler(message, question_2_end)
-
-
-def question_2_photo(message):
-    try:
-        if check_end_time(message.chat):
-            if message.content_type == 'photo':
-                keyboard_inline = types.InlineKeyboardMarkup()
-                confirm_button = types.InlineKeyboardButton('Подтвердить', callback_data='confirm')
-                cancel_button = types.InlineKeyboardButton('Отменить', callback_data='cancel')
-                keyboard_inline.row(confirm_button, cancel_button)
-                bot.send_photo(admin_id, message.photo[-1].file_id,
-                               caption=f'Подтвердите отправку этой фотографии для "{message.chat.title}":\n'
-                                       f'\n'
-                                       f'Задание 2 (бугатти):\n'
-                                       f'\n'
-                                       f'[ {message.chat} ]\n'
-                                       f'#question_2#',
-                               reply_markup=keyboard_inline)
-
-                @bot.callback_query_handler(func=lambda call: True)
-                def callback_handler(call):
-                    text = call.message.caption
-                    match = re.search(r'\[(.*?)\]', text)
-                    question = re.search(r'\#(.*?)\#', text)
-                    text = match.group(1).replace("'", "\"")
-                    text_end = text.replace("None", "null")
-                    value = json.loads(text_end)
-                    chat = types.Chat.de_json(value)
-                    if call.data == 'confirm':
-                        end_question_at(chat, question.group(1))
-                        bot.send_message(call.from_user.id, f'Фотография подтверждена у \"{chat.title}\"')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(chat.id, 'Хм, уверен это фото оценят по достоинству.\n Открывай меню, '
-                                                  'поехали дальше 👍🏼', reply_markup=keyboard.keyboard(chat))
-                        if check_final(chat):
-                            end_at(chat)
-                            bot.send_sticker(chat.id,
-                                             'CAACAgIAAxkBAAEJWLJkjZnnq-9Z6FIKDa7Sjzjv2udGTgACaS8AAmjYaUgPYCMFmg1OtC8E')
-                            bot.send_message(chat.id, 'Вау! 🥳🥳🥳\n'
-                                                      '\n'
-                                                      'Я в восторге от того, как хорошо вы разбираетесь в автомобилях.'
-                                                      'Не каждый смог бы пройти все задания и ответить на все вопросы. '
-                                                      'Ещё и ваши фотографии, аплодирую стоя.\n'
-                                                      '\n'
-                                                      'Скоро ведущий объявит результаты игры, а вы пока можете '
-                                                      'ещё насладиться выставкой\n'
-                                                      '❤️', reply_markup=None)
-                    elif call.data == 'cancel':
-                        bot.send_message(chat.id, 'Хм.. даю ещё шанс 😊')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(call.from_user.id, f'Фотография отменена у \"{chat.title}\"')
-                        bot.register_next_step_handler(message, question_2_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_2_photo)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_2_photo: {error}')
-        bot.register_next_step_handler(message, question_2_photo)
-
-
-# -------------Вопрос 3---------------------------
-
-@bot.message_handler(func=lambda message: message.text.lower() == 'вопрос 3', content_types=['text'])
-def question_3(message):
-    try:
-        if check_end_time(message.chat):
-            start_question_at(message.chat, 'question_3')
-            bot.send_message(message.chat.id,
-                             '_У каждой машины есть свои обычные характеристики._\n'
-                             '\n'
-                             '*Например:* _количество лошадиных сил, рабочий объём двигателя, длина корпуса и т.д. '
-                             'Но это скучные данные...\n'
-                             '\n'
-                             'Другое дело, знать о машине её историю! Давайте представим, что у машин есть свой '
-                             'исторический паспорт, в котором вместо характеристик указаны факты о ней_ 🥰',
-                             parse_mode="Markdown", )
-            bot.send_photo(message.chat.id,
-                           'AgACAgIAAxkBAAIDv2SQgGfbwD80wGlZfVpuguEdiVIfAAJFzTEbaTaJSAUJHtj5F2RKAQADAgADeQADLwQ',
-                           caption='Вам будут представлены исторические факты о машине. Предположите, о какой идёт '
-                                   'речь. Есть несколько попыток!\n'
-                                   '\n'
-                                   '🚙 _В ответ название или «кличку» автомобиля_', parse_mode="Markdown")
-            bot.register_next_step_handler(message, question_3_1)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_3: {error}')
-        bot.register_next_step_handler(message, question_3)
-
-
-def question_3_1(message):
-    try:
-        if check_end_time(message.chat):
-            if message.text.lower() in ["ваз-2101", "копейка", "ваз 2101", "ваз 2101", "ваз-2101", "ваз2101"]:
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDxWSQgxhyRWsKvRtMGIe_LyZHFauyAAJTzTEbaTaJSLJlVCJD3tSSAQADAgADeQADLwQ',
-                               '_Отлично, молодцы!_ 👍🏼👍🏼👍🏼',
-                               parse_mode="Markdown",
-                               )
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDwGSQgPB07vN5wuAOybIowcXdKYPCAAJHzTEbaTaJSO8MmfAFPfufAQADAgADeQADLwQ',
-                               caption='_Водитель красного ВАЗ-2101 явно не хотел попасть в такую ситуацию, но '
-                                       'фотография у него получилась достаточно колоритная._\n'
-                                       '\n'
-                                       '_Сможете показать как бы вы вели себя, если б вас остановили на '
-                                       'такой машине?_ 🚗', parse_mode="Markdown",
-                               )
-                bot.register_next_step_handler(message, question_3_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDwWSQgXzcM2hSsyB-cajBLfvmntVgAAJJzTEbaTaJSNkdE-QFB4H8AQADAgADeQADLwQ',
-                               caption='_Хм.. предлагаю подумать ещё_ 😊\n',
-                               parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_3_2)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_3_1: {error}')
-        bot.register_next_step_handler(message, question_3_1)
-
-
-def question_3_2(message):
-    try:
-        if check_end_time(message.chat):
-            if message.text.lower() in ["ваз-2101", "копейка", "ваз 2101", "ваз 2101", "ваз-2101", "ваз2101"]:
-                bot.send_message(message.chat.id,
-                                 '_Отлично, молодцы!_ 👍🏼👍🏼👍🏼',
-                                 parse_mode="Markdown", )
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDxWSQgxhyRWsKvRtMGIe_LyZHFauyAAJTzTEbaTaJSLJlVCJD3tSSAQADAgADeQADLwQ',
-                               caption='_Водитель красного ВАЗ-2101 явно не хотел попасть в такую ситуацию, но '
-                                       'фотография у него получилась достаточно колоритная._\n'
-                                       '\n'
-                                       '_Сможете показать как бы вы вели себя, если б вас остановили на '
-                                       'такой машине?_ 🚗', parse_mode="Markdown", )
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDwGSQgPB07vN5wuAOybIowcXdKYPCAAJHzTEbaTaJSO8MmfAFPfufAQADAgADeQADLwQ')
-                bot.register_next_step_handler(message, question_3_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDwmSQgpERGqJk1IwYuXW7fueJe6N-AAJPzTEbaTaJSGYsn-yiKXFJAQADAgADeQADLwQ',
-                               caption='_Хм.. предлагаю подумать ещё_ 😊\n',
-                               parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_3_3)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_3_2: {error}')
-        bot.register_next_step_handler(message, question_3_2)
-
-
-def question_3_3(message):
-    try:
-        if check_end_time(message.chat):
-            if message.text.lower() in ["ваз-2101", "копейка", "ваз 2101", "ваз 2101", "ваз-2101", "ваз2101"]:
-                bot.send_message(message.chat.id,
-                                 '_Отлично, молодцы!_ 👍🏼👍🏼👍🏼',
-                                 parse_mode="Markdown", )
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDxWSQgxhyRWsKvRtMGIe_LyZHFauyAAJTzTEbaTaJSLJlVCJD3tSSAQADAgADeQADLwQ',
-                               caption='_Водитель красного ВАЗ-2101 явно не хотел попасть в такую ситуацию, но '
-                                       'фотография у него получилась достаточно колоритная._\n'
-                                       '\n'
-                                       '_Сможете показать как бы вы вели себя, если б вас остановили на '
-                                       'такой машине?_ 🚗', parse_mode="Markdown", )
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDwGSQgPB07vN5wuAOybIowcXdKYPCAAJHzTEbaTaJSO8MmfAFPfufAQADAgADeQADLwQ')
-                bot.register_next_step_handler(message, question_3_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDw2SQgr-C5-_xdE7ejvRcU0Dbn3s_AAJQzTEbaTaJSIQ6TNIuYCv0AQADAgADeQADLwQ',
-                               caption='_Хм.. предлагаю подумать ещё_ 😊\n',
-                               parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_3_4)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_3_3: {error}')
-        bot.register_next_step_handler(message, question_3_3)
-
-
-def question_3_4(message):
-    try:
-        if check_end_time(message.chat):
-            if message.text.lower() in ["ваз-2101", "копейка", "ваз 2101", "ваз 2101", "ваз-2101", "ваз2101"]:
-                bot.send_message(message.chat.id,
-                                 '_Отлично, молодцы!_ 👍🏼👍🏼👍🏼',
-                                 parse_mode="Markdown", )
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDxWSQgxhyRWsKvRtMGIe_LyZHFauyAAJTzTEbaTaJSLJlVCJD3tSSAQADAgADeQADLwQ',
-                               caption='_Водитель красного ВАЗ-2101 явно не хотел попасть в такую ситуацию, но '
-                                       'фотография у него получилась достаточно колоритная._\n'
-                                       '\n'
-                                       '_Сможете показать как бы вы вели себя, если б вас остановили на '
-                                       'такой машине?_ 🚗', parse_mode="Markdown", )
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDwGSQgPB07vN5wuAOybIowcXdKYPCAAJHzTEbaTaJSO8MmfAFPfufAQADAgADeQADLwQ')
-                bot.register_next_step_handler(message, question_3_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDxGSQgvXWmPA5OCFc5tOc_ZUDRd77AAJSzTEbaTaJSOnMO1Z7v8IEAQADAgADeQADLwQ',
-                               caption='Хм.. предлагаю подумать ещё 😊\n',
-                               parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_3_4)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_3_4: {error}')
-        bot.register_next_step_handler(message, question_3_4)
-
-
-def question_3_end(message):
-    try:
-        if check_end_time(message.chat):
-            if message.text.lower() in ["ваз-2101", "копейка", "ваз 2101", "ваз 2101", "ваз-2101", "ваз2101"]:
-                bot.send_message(message.chat.id,
-                                 '_Отлично, молодцы!_ 👍🏼👍🏼👍🏼',
-                                 parse_mode="Markdown", )
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDxWSQgxhyRWsKvRtMGIe_LyZHFauyAAJTzTEbaTaJSLJlVCJD3tSSAQADAgADeQADLwQ',
-                               caption='_Водитель красного ВАЗ-2101 явно не хотел попасть в такую ситуацию, но '
-                                       'фотография у него получилась достаточно колоритная._\n'
-                                       '\n'
-                                       '_Сможете показать как бы вы вели себя, если б вас остановили на '
-                                       'такой машине?_ 🚗', parse_mode="Markdown", )
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDwGSQgPB07vN5wuAOybIowcXdKYPCAAJHzTEbaTaJSO8MmfAFPfufAQADAgADeQADLwQ')
-                bot.register_next_step_handler(message, question_3_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_3_end)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_3_end: {error}')
-        bot.register_next_step_handler(message, question_3_end)
-
-
-def question_3_photo(message):
-    try:
-        if check_end_time(message.chat):
-            if message.content_type == 'photo':
-                keyboard_inline = types.InlineKeyboardMarkup()
-                confirm_button = types.InlineKeyboardButton('Подтвердить', callback_data='confirm')
-                cancel_button = types.InlineKeyboardButton('Отменить', callback_data='cancel')
-                keyboard_inline.row(confirm_button, cancel_button)
-                bot.send_photo(admin_id, message.photo[-1].file_id,
-                               caption=f'Подтвердите отправку этой фотографии для "{message.chat.title}":\n'
-                                       f'\n'
-                                       f'Задание 3 (ваз2101):\n'
-                                       f'\n'
-                                       f'[ {message.chat} ]'
-                                       f'#question_3#',
-                               reply_markup=keyboard_inline)
-
-                @bot.callback_query_handler(func=lambda call: True)
-                def callback_handler(call):
-                    text = call.message.caption
-                    match = re.search(r'\[(.*?)\]', text)
-                    question = re.search(r'\#(.*?)\#', text)
-                    text = match.group(1).replace("'", "\"")
-                    text_end = text.replace("None", "null")
-                    value = json.loads(text_end)
-                    chat = types.Chat.de_json(value)
-                    if call.data == 'confirm':
-                        end_question_at(chat, question.group(1))
-                        bot.send_message(call.from_user.id, f'Фотография подтверждена у \"{chat.title}\"')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(chat.id, 'Хм, уверен это фото оценят по достоинству.\nОткрывай меню, '
-                                                  'поехали дальше 👍🏼', reply_markup=keyboard.keyboard(chat))
-                        if check_final(chat):
-                            end_at(chat)
-                            bot.send_sticker(chat.id,
-                                             'CAACAgIAAxkBAAEJWLJkjZnnq-9Z6FIKDa7Sjzjv2udGTgACaS8AAmjYaUgPYCMFmg1OtC8E')
-                            bot.send_message(chat.id, 'Вау! 🥳🥳🥳\n'
-                                                      '\n'
-                                                      'Я в восторге от того, как хорошо вы разбираетесь в автомобилях.'
-                                                      'Не каждый смог бы пройти все задания и ответить на все вопросы. '
-                                                      'Ещё и ваши фотографии, аплодирую стоя.\n'
-                                                      '\n'
-                                                      'Скоро ведущий объявит результаты игры, а вы пока можете '
-                                                      'ещё насладиться выставкой\n'
-                                                      '❤️', reply_markup=None)
-                    elif call.data == 'cancel':
-                        bot.send_message(chat.id, 'Хм.. даю ещё шанс 😊')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(call.from_user.id, f'Фотография отменена у \"{chat.title}\"')
-                        bot.register_next_step_handler(message, question_3_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_3_photo)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_3_photo: {error}')
-        bot.register_next_step_handler(message, question_3_photo)
-
-
-# -------------Вопрос 4---------------------------
-@bot.message_handler(func=lambda message: message.text.lower() == 'вопрос 4', content_types=['text'])
-def question_4(message):
-    try:
-        if check_end_time(message.chat):
-            start_question_at(message.chat, 'question_4')
-            bot.send_message(message.chat.id,
-                             '_На дороге одним из самых важных аспектов является_ *внимательность!* _Невнимательный '
-                             'водитель может и поворот пропустить, и перекати-поле сбить, и поломанную машину '
-                             'купить._\n'
-                             '\n'
-                             '_Чтобы с вами такого не случалось, есть отличная возможность потренировать это '
-                             'качество прямо сейчас_ ✊🏼'
-                             , parse_mode="Markdown", )
-            bot.send_video(message.chat.id,
-                           'BAACAgIAAxkBAAIDxmSQhP-zJlwYJdgPbOiWzn7ZST-JAALWMgACaTaJSDDU0KcWLNWuLwQ')
-            bot.send_photo(message.chat.id,
-                           'AgACAgIAAxkBAAIDyGSQiM_4Sg4Z4cPChl4gG8sKPCyAAAJpzTEbaTaJSC-DOLoK-jWZAQADAgADeQADLwQ',
-                           caption='Ваша задача — внимательно посмотреть видео и ответить на вопросы после него '
-                                   'в любом порядке.\n'
-                                   '\n'
-                                   '🚙 _Ответ на каждый вопрос присылайте отдельным сообщением._', parse_mode="Markdown")
-            bot.register_next_step_handler(message, question_4_end)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_4: {error}')
-        bot.register_next_step_handler(message, question_4)
-
-
-def question_4_end(message):
-    try:
-        if check_end_time(message.chat):
-            if message.text.lower() in ['3', 'три']:
-                if check_answer(message.chat, 'question_answer', "answer_1"):
-                    bot.send_message(message.chat.id,
-                                     'Верно, но подобный ответ уже засчитан',
-                                     parse_mode="Markdown", )
-                    bot.register_next_step_handler(message, question_4_end)
-                else:
-                    bot.send_message(message.chat.id,
-                                     'Прекрасно справляешься!',
-                                     parse_mode="Markdown", )
-                    change_answer(message.chat, 'question_answer', "answer_1")
-                    if check_answer_final(message.chat, 'question_answer'):
-                        bot.send_message(message.chat.id,
-                                         '_Молодцы_ 💪🏼 _Теперь фото!_', parse_mode="Markdown", )
-                        bot.send_photo(message.chat.id,
-                                       'AgACAgIAAxkBAAIDx2SQiHX4ValhuzyMmUqnn437dNc3AAJmzTEbaTaJSM6bNYh4O6hNAQADAgADeQADLwQ',
-                                       caption='_Ух ты, вот это дааа! Смотрите, какая счастливая семья❤️ '
-                                               'Вы своего рода тоже семья, ведь задания выполняете вместе!\n'
-                                               '\n'
-                                               'А сможете сделать такое же фото? Только не трогайте автомобиль, '
-                                               'он и так старенький уже совсем_ 😅', parse_mode="Markdown"
-                                       )
-                        bot.register_next_step_handler(message, question_4_photo)
-                    else:
-                        bot.register_next_step_handler(message, question_4_end)
-            elif message.text.lower() in ['красная', 'красного', 'бордовая', 'бордового']:
-                if check_answer(message.chat, 'question_answer', "answer_2"):
-                    bot.send_message(message.chat.id,
-                                     'Верно, но подобный ответ уже засчитан',
-                                     parse_mode="Markdown", )
-                    bot.register_next_step_handler(message, question_4_end)
-                else:
-                    bot.send_message(message.chat.id,
-                                     'Прекрасно справляешься!',
-                                     parse_mode="Markdown", )
-                    change_answer(message.chat, 'question_answer', "answer_2")
-                    if check_answer_final(message.chat, 'question_answer'):
-                        bot.send_message(message.chat.id,
-                                         '_Молодцы_ 💪🏼 _Теперь фото!_', parse_mode="Markdown", )
-                        bot.send_photo(message.chat.id,
-                                       'AgACAgIAAxkBAAIDx2SQiHX4ValhuzyMmUqnn437dNc3AAJmzTEbaTaJSM6bNYh4O6hNAQADAgADeQADLwQ',
-                                       caption='_Ух ты, вот это дааа! Смотрите, какая счастливая семья❤️ '
-                                               'Вы своего рода тоже семья, ведь задания выполняете вместе!\n'
-                                               '\n'
-                                               'А сможете сделать такое же фото? Только не трогайте автомобиль, '
-                                               'он и так старенький уже совсем_ 😅', parse_mode="Markdown"
-                                       )
-                        bot.register_next_step_handler(message, question_4_photo)
-                    else:
-                        bot.register_next_step_handler(message, question_4_end)
-            elif message.text.lower() in ['6000', '6 тысяч', 'шесть тысяч',  "6", "шесть"]:
-                if check_answer(message.chat, 'question_answer', "answer_3"):
-                    bot.send_message(message.chat.id,
-                                     'Верно, но подобный ответ уже засчитан',
-                                     parse_mode="Markdown", )
-                    bot.register_next_step_handler(message, question_4_end)
-                else:
-                    bot.send_message(message.chat.id,
-                                     'Прекрасно справляешься!',
-                                     parse_mode="Markdown", )
-                    change_answer(message.chat, 'question_answer', "answer_3")
-                    if check_answer_final(message.chat, 'question_answer'):
-                        bot.send_message(message.chat.id,
-                                         '_Молодцы_ 💪🏼 _Теперь фото!_', parse_mode="Markdown", )
-                        bot.send_photo(message.chat.id,
-                                       'AgACAgIAAxkBAAIDx2SQiHX4ValhuzyMmUqnn437dNc3AAJmzTEbaTaJSM6bNYh4O6hNAQADAgADeQADLwQ',
-                                       caption='_Ух ты, вот это дааа! Смотрите, какая счастливая семья❤️ '
-                                               'Вы своего рода тоже семья, ведь задания выполняете вместе!\n'
-                                               '\n'
-                                               'А сможете сделать такое же фото? Только не трогайте автомобиль, '
-                                               'он и так старенький уже совсем_ 😅', parse_mode="Markdown"
-                                       )
-                        bot.register_next_step_handler(message, question_4_photo)
-                    else:
-                        bot.register_next_step_handler(message, question_4_end)
-            elif message.text.lower() in ['ford', 'ford model a', 'форд', 'форд модел а']:
-                if check_answer(message.chat, 'question_answer', "answer_4"):
-                    bot.send_message(message.chat.id,
-                                     'Верно, но подобный ответ уже засчитан',
-                                     parse_mode="Markdown", )
-                    bot.register_next_step_handler(message, question_4_end)
-                else:
-                    bot.send_message(message.chat.id,
-                                     'Прекрасно справляешься!',
-                                     parse_mode="Markdown", )
-                    change_answer(message.chat, 'question_answer', "answer_4")
-                    if check_answer_final(message.chat, 'question_answer'):
-                        bot.send_message(message.chat.id,
-                                         '_Молодцы_ 💪🏼 _Теперь фото!_', parse_mode="Markdown", )
-                        bot.send_photo(message.chat.id,
-                                       'AgACAgIAAxkBAAIDx2SQiHX4ValhuzyMmUqnn437dNc3AAJmzTEbaTaJSM6bNYh4O6hNAQADAgADeQADLwQ',
-                                       caption='_Ух ты, вот это дааа! Смотрите, какая счастливая семья❤️ '
-                                               'Вы своего рода тоже семья, ведь задания выполняете вместе!\n'
-                                               '\n'
-                                               'А сможете сделать такое же фото? Только не трогайте автомобиль, '
-                                               'он и так старенький уже совсем_ 😅',parse_mode="Markdown")
-                        bot.register_next_step_handler(message, question_4_photo)
-                    else:
-                        bot.register_next_step_handler(message, question_4_end)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_4_end)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_4_end: {error}')
-        bot.register_next_step_handler(message, question_4_end)
-
-
-def question_4_photo(message):
-    try:
-        if check_end_time(message.chat):
-            if message.content_type == 'photo':
-                keyboard_inline = types.InlineKeyboardMarkup()
-                confirm_button = types.InlineKeyboardButton('Подтвердить', callback_data='confirm')
-                cancel_button = types.InlineKeyboardButton('Отменить', callback_data='cancel')
-                keyboard_inline.row(confirm_button, cancel_button)
-                bot.send_photo(admin_id, message.photo[-1].file_id,
-                               caption=f'Подтвердите отправку этой фотографии для "{message.chat.title}":\n'
-                                       f'\n'
-                                       f'Задание 4 (сбор ответов):\n'
-                                       f'\n'
-                                       f'[ {message.chat} ]'
-                                       f'#question_4#',
-                               reply_markup=keyboard_inline)
-
-                @bot.callback_query_handler(func=lambda call: True)
-                def callback_handler(call):
-                    text = call.message.caption
-                    match = re.search(r'\[(.*?)\]', text)
-                    question = re.search(r'\#(.*?)\#', text)
-                    text = match.group(1).replace("'", "\"")
-                    text_end = text.replace("None", "null")
-                    value = json.loads(text_end)
-                    chat = types.Chat.de_json(value)
-                    if call.data == 'confirm':
-                        end_question_at(chat, question.group(1))
-                        bot.send_message(call.from_user.id, f'Фотография подтверждена у \"{chat.title}\"')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(chat.id, 'Хм, уверен это фото оценят по достоинству.\nОткрывай меню, '
-                                                  'поехали дальше 👍🏼', reply_markup=keyboard.keyboard(chat))
-                        if check_final(chat):
-                            end_at(chat)
-                            bot.send_sticker(chat.id,
-                                             'CAACAgIAAxkBAAEJWLJkjZnnq-9Z6FIKDa7Sjzjv2udGTgACaS8AAmjYaUgPYCMFmg1OtC8E')
-                            bot.send_message(chat.id, 'Вау! 🥳🥳🥳\n'
-                                                      '\n'
-                                                      'Я в восторге от того, как хорошо вы разбираетесь в автомобилях.'
-                                                      'Не каждый смог бы пройти все задания и ответить на все вопросы. '
-                                                      'Ещё и ваши фотографии, аплодирую стоя.\n'
-                                                      '\n'
-                                                      'Скоро ведущий объявит результаты игры, а вы пока можете '
-                                                      'ещё насладиться выставкой\n'
-                                                      '❤️', reply_markup=None)
-                    elif call.data == 'cancel':
-                        bot.send_message(chat.id, 'Хм.. даю ещё шанс 😊')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(call.from_user.id, f'Фотография отменена у \"{chat.title}\"')
-                        bot.register_next_step_handler(message, question_4_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_4_photo)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_4_photo: {error}')
-        bot.register_next_step_handler(message, question_4_photo)
-
-
-# -------------Вопрос 5---------------------------
-@bot.message_handler(func=lambda message: message.text.lower() == 'вопрос 5', content_types=['text'])
-def question_5(message):
-    try:
-        if check_end_time(message.chat):
-            start_question_at(message.chat, 'question_5')
-            bot.send_message(message.chat.id,
-                             '_Ух ты, вот это дааа! Смотрите, какая счастливая семья_❤️ _Вы своего рода тоже семья, '
-                             'ведь задания выполняете вместе!_\n'
-                             '\n'
-                             '_Возьмите из бардачка записку, на ней бывший владелец оставил вам подсказку, '
-                             'что же это за машина._', parse_mode="Markdown", )
-            bot.send_photo(message.chat.id,
-                           'AgACAgIAAxkBAAIDyWSQv95ZYo66Mic38g0txl0Of-OIAAKGzjEbaTaJSG9pCihb0tX5AQADAgADeQADLwQ')
-            bot.register_next_step_handler(message, question_5_end)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_5: {error}')
-        bot.register_next_step_handler(message, question_5)
-
-
-def question_5_end(message):
-    try:
-        if check_end_time(message.chat):
-            if message.text.lower() in ["газ13", "газ-13", "газ 13", "чайка", "волга"]:
-
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDymSQwBJDGXvY7p9TN0sPpOrbdeeoAAKIzjEbaTaJSFs4a-DLnZuzAQADAgADeQADLwQ',
-                               caption='_Молодцы. Софи Лорен сфоткалась и вы сможете. Только вам надо повторить, '
-                                       'успехов!_', parse_mode="Markdown", )
-                bot.register_next_step_handler(message, question_5_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_5_end)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_5_end: {error}')
-        bot.register_next_step_handler(message, question_5_end)
-
-
-def question_5_photo(message):
-    try:
-        if check_end_time(message.chat):
-            if message.content_type == 'photo':
-                keyboard_inline = types.InlineKeyboardMarkup()
-                confirm_button = types.InlineKeyboardButton('Подтвердить', callback_data='confirm')
-                cancel_button = types.InlineKeyboardButton('Отменить', callback_data='cancel')
-                keyboard_inline.row(confirm_button, cancel_button)
-                bot.send_photo(admin_id, message.photo[-1].file_id,
-                               caption=f'Подтвердите отправку этой фотографии для "{message.chat.title}":\n'
-                                       f'\n'
-                                       f'Задание 5 (газ13):\n'
-                                       f'\n'
-                                       f'[ {message.chat} ]'
-                                       f'#question_5#',
-                               reply_markup=keyboard_inline)
-
-                @bot.callback_query_handler(func=lambda call: True)
-                def callback_handler(call):
-                    text = call.message.caption
-                    match = re.search(r'\[(.*?)\]', text)
-                    question = re.search(r'\#(.*?)\#', text)
-                    text = match.group(1).replace("'", "\"")
-                    text_end = text.replace("None", "null")
-                    value = json.loads(text_end)
-                    chat = types.Chat.de_json(value)
-                    if call.data == 'confirm':
-                        end_question_at(chat, question.group(1))
-                        bot.send_message(call.from_user.id, f'Фотография подтверждена у \"{chat.title}\"')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(chat.id, 'Хм, уверен это фото оценят по достоинству.\nОткрывай меню, '
-                                                  'поехали дальше 👍🏼', reply_markup=keyboard.keyboard(chat))
-                        if check_final(chat):
-                            end_at(chat)
-                            bot.send_sticker(chat.id,
-                                             'CAACAgIAAxkBAAEJWLJkjZnnq-9Z6FIKDa7Sjzjv2udGTgACaS8AAmjYaUgPYCMFmg1OtC8E')
-                            bot.send_message(chat.id, 'Вау! 🥳🥳🥳\n'
-                                                      '\n'
-                                                      'Я в восторге от того, как хорошо вы разбираетесь в автомобилях.'
-                                                      'Не каждый смог бы пройти все задания и ответить на все вопросы. '
-                                                      'Ещё и ваши фотографии, аплодирую стоя.\n'
-                                                      '\n'
-                                                      'Скоро ведущий объявит результаты игры, а вы пока можете '
-                                                      'ещё насладиться выставкой\n'
-                                                      '❤️', reply_markup=None)
-                    elif call.data == 'cancel':
-                        bot.send_message(chat.id, 'Хм.. даю ещё шанс 😊')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(call.from_user.id, f'Фотография отменена у \"{chat.title}\"')
-                        bot.register_next_step_handler(message, question_5_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_5_photo)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_5_photo: {error}')
-        bot.register_next_step_handler(message, question_5_photo)
-
-
-# -------------Вопрос 6---------------------------
-@bot.message_handler(func=lambda message: message.text.lower() == 'вопрос 6', content_types=['text'])
-def question_6(message):
-    try:
-        if check_end_time(message.chat):
-            start_question_at(message.chat, 'question_6')
-            bot.send_message(message.chat.id,
-                             '_Кто-то милого способен узнать по походке, ну мы с вами легко отгадаем машину даже с '
-                             'закрытыми глазами! Ну ладно… с силуэтом машины  будет, пожалуй, проще._'
-                             , parse_mode="Markdown", )
-            bot.send_photo(message.chat.id,
-                           'AgACAgIAAxkBAAIDy2SQwUHg1w_qRzHRgRHNj1-CdP1nAAKNzjEbaTaJSGawCC0rmviPAQADAgADeAADLwQ',
-                           caption='🚙 _Напишите марку машины, которую мы скрыли_', parse_mode="Markdown")
-            bot.register_next_step_handler(message, question_6_1)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_6: {error}')
-        bot.register_next_step_handler(message, question_6)
-
-
-def question_6_1(message):
-    try:
-        if check_end_time(message.chat):
-            if message.text.lower() in ["астон мартин", "астонмартин", "aston martin", "astonmartin"]:
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDz2SQw3EieP4bX6tYzSAbYuaBppPwAAIUyDEbGVaISDuWpytb4seHAQADAgADeQADLwQ')
-                bot.send_message(message.chat.id,
-                                 '_Супер, держите еще машину. _'
-                                 , parse_mode="Markdown", )
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDzWSQwjVRhYROr5yFyTcdN1D7hxyuAAKQzjEbaTaJSEvie_tfbnCaAQADAgADeQADLwQ')
-                bot.register_next_step_handler(message, question_6_2)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_6_1)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_6_1: {error}')
-        bot.register_next_step_handler(message, question_6_1)
-
-
-def question_6_2(message):
-    try:
-        if check_end_time(message.chat):
-            if message.text.lower() in ["альфа ромео", "альфаромео", "alfa romeo", "alfaromeo"]:
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAID0GSQw7aRqDzlQcHSSQ0zWVW2Bk7MAAIVyDEbGVaISLT166vZBHvKAQADAgADbQADLwQ')
-                bot.send_message(message.chat.id,
-                                 '_Супер, держите еще машину._'
-                                 , parse_mode="Markdown", )
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIDzmSQwpyPpjcPgNBo9YbM_kLEERsFAAITyDEbGVaISFG-dv9yUayPAQADAgADeQADLwQ')
-                bot.register_next_step_handler(message, question_6_end)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_6_2)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_6_2: {error}')
-        bot.register_next_step_handler(message, question_6_2)
-
-
-def question_6_end(message):
-    try:
-        if check_end_time(message.chat):
-            if message.text.lower() in ["aurus", "аурус", "аурус сенат", "aurus senat"]:
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAID0WSQxAQ597I8kZRtNdjyp5y6RksUAAIWyDEbGVaISPotVq15ct0TAQADAgADeQADLwQ',
-                               )
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAID0mSQxEMQMRoyTdhlgZikmZHjLIDqAAIXyDEbGVaISCfYIT-rtZFSAQADAgADeQADLwQ',
-                               caption='_Молодцы. '
-                                       'Ну_…_не знаю как вы будете повторять следующее фото 😂 Вот и проверим, '
-                                       'на что способна ваша фантазия!_'
-                               , parse_mode="Markdown"
-                               )
-                bot.register_next_step_handler(message, question_6_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_6_end)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_6_end: {error}')
-        bot.register_next_step_handler(message, question_6_end)
-
-
-def question_6_photo(message):
-    try:
-        if check_end_time(message.chat):
-            if message.content_type == 'photo':
-                keyboard_inline = types.InlineKeyboardMarkup()
-                confirm_button = types.InlineKeyboardButton('Подтвердить', callback_data='confirm')
-                cancel_button = types.InlineKeyboardButton('Отменить', callback_data='cancel')
-                keyboard_inline.row(confirm_button, cancel_button)
-                bot.send_photo(admin_id, message.photo[-1].file_id,
-                               caption=f'Подтвердите отправку этой фотографии для "{message.chat.title}":\n'
-                                       f'\n'
-                                       f'Задание 6 (Силуэты):\n'
-                                       f'\n'
-                                       f'[ {message.chat} ]'
-                                       f'#question_6#',
-                               reply_markup=keyboard_inline)
-
-                @bot.callback_query_handler(func=lambda call: True)
-                def callback_handler(call):
-                    text = call.message.caption
-                    match = re.search(r'\[(.*?)\]', text)
-                    question = re.search(r'\#(.*?)\#', text)
-                    text = match.group(1).replace("'", "\"")
-                    text_end = text.replace("None", "null")
-                    value = json.loads(text_end)
-                    chat = types.Chat.de_json(value)
-                    if call.data == 'confirm':
-                        end_question_at(chat, question.group(1))
-                        bot.send_message(call.from_user.id, f'Фотография подтверждена у \"{chat.title}\"')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(chat.id, 'Хм, уверен это фото оценят по достоинству.\nОткрывай меню, '
-                                                  'поехали дальше 👍🏼', reply_markup=keyboard.keyboard(chat))
-                        if check_final(chat):
-                            end_at(chat)
-                            bot.send_sticker(chat.id,
-                                             'CAACAgIAAxkBAAEJWLJkjZnnq-9Z6FIKDa7Sjzjv2udGTgACaS8AAmjYaUgPYCMFmg1OtC8E')
-                            bot.send_message(chat.id, 'Вау! 🥳🥳🥳\n'
-                                                      '\n'
-                                                      'Я в восторге от того, как хорошо вы разбираетесь в автомобилях.'
-                                                      'Не каждый смог бы пройти все задания и ответить на все вопросы. '
-                                                      'Ещё и ваши фотографии, аплодирую стоя.\n'
-                                                      '\n'
-                                                      'Скоро ведущий объявит результаты игры, а вы пока можете '
-                                                      'ещё насладиться выставкой\n'
-                                                      '❤️', reply_markup=None)
-                    elif call.data == 'cancel':
-                        bot.send_message(chat.id, 'Хм.. даю ещё шанс 😊')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(call.from_user.id, f'Фотография отменена у \"{chat.title}\"')
-                        bot.register_next_step_handler(message, question_6_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_6_photo)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_6_photo: {error}')
-        bot.register_next_step_handler(message, question_6_photo)
-
-
-# -------------Вопрос 7*---------------------------
-@bot.message_handler(func=lambda message: message.text.lower() == 'вопрос 7', content_types=['text'])
-def question_7(message):
-    try:
-        if check_end_time(message.chat):
-            start_question_at(message.chat, 'question_7')
-            bot.send_message(message.chat.id,
-                             '_Часто в сервисных центрах водители не могут нормально объяснить, что у них '
-                             'за поломка._\n'
-                             '\n'
-                             '🚙 _По описаниям таких водителей необходимо понять, что у них сломалось и прислать '
-                             'стикер детали, которую нужно починить._'
-                             , parse_mode="Markdown", )
-            bot.send_sticker(message.chat.id,
-                             'CAACAgIAAxkBAAEJWLRkjZpdhGap32r3QBh7xTfAKbc_twAC9TAAAhP4aUjeuMcerREJFi8E')
-            bot.send_message(message.chat.id,
-                             '_Сохраните стикерпак_'
-                             , parse_mode="Markdown", )
-            bot.send_voice(message.chat.id, 'AwACAgQAAxkBAAIHwGSTSizZF-5u9SPVT6VIXc8Rg5DuAAJXSQACc9WZUG_M1CeDDtNdLwQ')
-            bot.register_next_step_handler(message, question_7_1)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_7: {error}')
-        bot.register_next_step_handler(message, question_5)
-
-
-def question_7_1(message):
-    try:
-        if check_end_time(message.chat):
-            if message.sticker.emoji == "2️⃣" and message.sticker.set_name == 'Vysshaya_peredacha':
-                bot.send_message(message.chat.id,
-                                 '_Конечно это скрипят колодки. Посмотрим какие поломки у остальных. _'
-                                 , parse_mode="Markdown", )
-                bot.send_voice(message.chat.id,
-                               'AwACAgQAAxkBAAIHwWSTTVaY460iNn-npAYC_rG4iZz6AAKCSgACc9WZUAABt0avhcJiQy8E')
-
-                bot.register_next_step_handler(message, question_7_2)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_7_1)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_7_1: {error}')
-        bot.register_next_step_handler(message, question_7_1)
-
-
-def question_7_2(message):
-    try:
-        if check_end_time(message.chat):
-            if message.sticker.emoji == "1️⃣" and message.sticker.set_name == 'Vysshaya_peredacha':
-                bot.send_message(message.chat.id,
-                                 '_Да, здесь явно проблема со стартером. Что там еще  сломалось у последнего клиента?_'
-                                 , parse_mode="Markdown", )
-                bot.send_voice(message.chat.id,
-                               'AwACAgQAAxkBAAIHwmSTTu3EsrAlXNWRCrplseP8HqvnAAIESwACc9WZUMa-tgABcpUYDC8E')
-                bot.register_next_step_handler(message, question_7_3)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_7_2)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_7_2: {error}')
-        bot.register_next_step_handler(message, question_7_2)
-
-
-def question_7_3(message):
-    try:
-        if check_end_time(message.chat):
-            if message.sticker.emoji == "3️⃣" and message.sticker.set_name == 'Vysshaya_peredacha':
-                bot.send_message(message.chat.id,
-                                 "_Да, тут, скорее всего, проблемы с прокладкой головки цилиндра.\n"
-                                 "Молодцы, вы помогли всем_🤝", parse_mode="Markdown", )
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIGwGSTKWTdTORi8lwAARIv3cwDWBYybQACY8oxG7TXmEiNs9zD0vJ5hgEAAwIAA3kAAy8E')
-                bot.send_photo(message.chat.id,
-                               'AgACAgIAAxkBAAIGwWSTKXdVxrW3cbCZVVtdCISbSQKIAAJkyjEbtNeYSE_zi2tOUAZXAQADAgADeQADLwQ',
-                               caption="_Кстати, как вы думаете, могли ли такие проблемы возникнуть у владельца "
-                                       "уникального в своем роде автомобиля? Ведь ZIBAR-MK 2 это уникальный вездеход, "
-                                       "который выдерживает даже жару в +55 и может адаптироваться практически под "
-                                       "любые требования.Чем-то даже напоминает машину Бэтмена. Вот вам фото этого "
-                                       "вездехода и Бэтмена с его бэмобилем. Сделайте с ним такое же фото, как "
-                                       "известный супергерой. Кстати, чем больше вас будет на фото, тем лучше._"
-                               , parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_7_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_7_3)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_7_3: {error}')
-        bot.register_next_step_handler(message, question_7_3)
-
-
-def question_7_photo(message):
-    try:
-        if check_end_time(message.chat):
-            if message.content_type == 'photo':
-                keyboard_inline = types.InlineKeyboardMarkup()
-                confirm_button = types.InlineKeyboardButton('Подтвердить', callback_data='confirm')
-                cancel_button = types.InlineKeyboardButton('Отменить', callback_data='cancel')
-                keyboard_inline.row(confirm_button, cancel_button)
-                bot.send_photo(admin_id, message.photo[-1].file_id,
-                               caption=f'Подтвердите отправку этой фотографии для "{message.chat.title}":\n'
-                                       f'\n'
-                                       f'Задание 7 (Поломки):\n'
-                                       f'\n'
-                                       f'[ {message.chat} ]'
-                                       f'#question_7#',
-                               reply_markup=keyboard_inline)
-
-                @bot.callback_query_handler(func=lambda call: True)
-                def callback_handler(call):
-                    text = call.message.caption
-                    match = re.search(r'\[(.*?)\]', text)
-                    question = re.search(r'\#(.*?)\#', text)
-                    text = match.group(1).replace("'", "\"")
-                    text_end = text.replace("None", "null")
-                    value = json.loads(text_end)
-                    chat = types.Chat.de_json(value)
-                    if call.data == 'confirm':
-                        end_question_at(chat, question.group(1))
-                        bot.send_message(call.from_user.id, f'Фотография подтверждена у \"{chat.title}\"')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(chat.id, 'Хм, уверен это фото оценят по достоинству.\nОткрывай меню, '
-                                                  'поехали дальше 👍🏼', reply_markup=keyboard.keyboard(chat))
-                        if check_final(chat):
-                            end_at(chat)
-                            bot.send_sticker(chat.id,
-                                             'CAACAgIAAxkBAAEJWLJkjZnnq-9Z6FIKDa7Sjzjv2udGTgACaS8AAmjYaUgPYCMFmg1OtC8E')
-                            bot.send_message(chat.id, '_Вау! Я в восторге от того, как хорошо вы разбираетесь в '
-                                                      'автомобилях.Не каждый смог бы пройти все задания и '
-                                                      'ответить на все вопросы. Еще и ваши фотографии, аплодирую '
-                                                      'стоя. Скоро ведущий объявит результаты игры, а вы пока '
-                                                      'можете еще насладиться выставкой._', reply_markup=None)
-                    elif call.data == 'cancel':
-                        bot.send_message(chat.id, 'Хм.. даю ещё шанс 😊')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(call.from_user.id, f'Фотография отменена у \"{chat.title}\"')
-                        bot.register_next_step_handler(message, question_7_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_7_photo)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_7_photo: {error}')
-        bot.register_next_step_handler(message, question_7_photo)
-
-
-# -------------Вопрос 8*---------------------------
-@bot.message_handler(func=lambda message: message.text.lower() == 'вопрос 8', content_types=['text'])
-def question_8(message):
-    try:
-        if check_end_time(message.chat):
-            start_question_at(message.chat, 'question_8')
-            bot.send_message(message.chat.id,
-                             '_Николай, Арсений, Иван и Ян собрались покупать себе машины через сервис Авито. '
-                             'У каждого из них есть пожелания по марке автомобиля, цвету и цене, в соответствии '
-                             'с их возрастом. Давайте узнаем, кто же, что себе хочет купить. _'
-                             , parse_mode="Markdown", )
-            bot.send_photo(message.chat.id,
-                           'AgACAgIAAxkBAAID3WSQyynG8xF1VeKkscm2cnl95Y-qAAK0zjEbaTaJSESysD0NqZZSAQADAgADeQADLwQ')
-            bot.send_photo(message.chat.id,
-                           'AgACAgIAAxkBAAID3mSQyzxNLh3TzGJgKvmyAnSQ7cDAAAK1zjEbaTaJSFnQNIemhmjaAQADAgADeQADLwQ')
-            bot.send_message(message.chat.id,
-                             'Сопоставьте все факты и определите будущих владельцев авто!\n'
-                             '\n'
-                             '🚙 _Один ответ = один автовладелец. Пример: Николай-машина_'
-                             , parse_mode="Markdown", )
-            bot.register_next_step_handler(message, question_8_end)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_8: {error}')
-        bot.register_next_step_handler(message, question_8)
-
-
-def question_8_end(message):
-    try:
-        if check_end_time(message.chat):
-            if message.text.lower() in ['николай-девятка']:
-                if check_answer(message.chat, 'question_answer_end', "answer_1"):
-                    bot.send_message(message.chat.id,
-                                     'Верно, но подобный ответ уже засчитан',
-                                     parse_mode="Markdown", )
-                    bot.register_next_step_handler(message, question_8_end)
-                else:
-                    bot.send_message(message.chat.id,
-                                     'Прекрасно справляешься!',
-                                     parse_mode="Markdown", )
-                    change_answer(message.chat, 'question_answer_end', "answer_1")
-                    if check_answer_final(message.chat, 'question_answer_end'):
-                        bot.send_message(message.chat.id,
-                                         '_Молодцы. Так, это салон Майбаха, если что. Напоминаю, наша задача – повторить фото. Трогать машину нельзя, но вы попробуйте подобрать хотя бы ракурс похожий) У вас всё получится!_',
-                                         parse_mode="Markdown", )
-                        bot.send_photo(message.chat.id,
-                                       'AgACAgIAAxkBAAID32SQzbW7N8Hy25H21op_h3nuKSyTAAK5zjEbaTaJSMChYhqcuio8AQADAgADeQADLwQ')
-                        bot.register_next_step_handler(message, question_8_photo)
-                    else:
-                        bot.register_next_step_handler(message, question_8_end)
-            elif message.text.lower() in ['арсений-бмв', 'арсений-bmw']:
-                if check_answer(message.chat, 'question_answer_end', "answer_2"):
-                    bot.send_message(message.chat.id,
-                                     'Верно, но подобный ответ уже засчитан',
-                                     parse_mode="Markdown", )
-                    bot.register_next_step_handler(message, question_8_end)
-                else:
-                    bot.send_message(message.chat.id,
-                                     'Прекрасно справляешься!',
-                                     parse_mode="Markdown", )
-                    change_answer(message.chat, 'question_answer_end', "answer_2")
-                    if check_answer_final(message.chat, 'question_answer_end'):
-                        bot.send_message(message.chat.id,
-                                         '_Молодцы. Так, это салон Майбаха, если что. Напоминаю, наша задача – '
-                                         'повторить фото. Трогать машину нельзя, но вы попробуйте подобрать хотя '
-                                         'бы ракурс похожий) У вас всё получится!_', parse_mode="Markdown", )
-                        bot.send_photo(message.chat.id,
-                                       'AgACAgIAAxkBAAID32SQzbW7N8Hy25H21op_h3nuKSyTAAK5zjEbaTaJSMChYhqcuio8AQADAgADeQADLwQ')
-                        bot.register_next_step_handler(message, question_8_photo)
-                    else:
-                        bot.register_next_step_handler(message, question_8_end)
-            elif message.text.lower() in ['иван-майбах', 'иван-maybach']:
-                if check_answer(message.chat, 'question_answer_end', "answer_3"):
-                    bot.send_message(message.chat.id,
-                                     'Верно, но подобный ответ уже засчитан',
-                                     parse_mode="Markdown", )
-                    bot.register_next_step_handler(message, question_8_end)
-                else:
-                    bot.send_message(message.chat.id,
-                                     'Прекрасно справляешься!',
-                                     parse_mode="Markdown", )
-                    change_answer(message.chat, 'question_answer_end', "answer_3")
-                    if check_answer_final(message.chat, 'question_answer_end'):
-                        bot.send_message(message.chat.id,
-                                         '_Молодцы. Так, это салон Майбаха, если что. Напоминаю, наша задача – '
-                                         'повторить фото. Трогать машину нельзя, но вы попробуйте подобрать хотя '
-                                         'бы ракурс похожий) У вас всё получится!_', parse_mode="Markdown", )
-                        bot.send_photo(message.chat.id,
-                                       'AgACAgIAAxkBAAID32SQzbW7N8Hy25H21op_h3nuKSyTAAK5zjEbaTaJSMChYhqcuio8AQADAgADeQADLwQ')
-                        bot.register_next_step_handler(message, question_8_photo)
-                    else:
-                        bot.register_next_step_handler(message, question_8_end)
-            elif message.text.lower() in ['ян-ауди', 'ян-audi']:
-                if check_answer(message.chat, 'question_answer_end', "answer_4"):
-                    bot.send_message(message.chat.id,
-                                     'Верно, но подобный ответ уже засчитан',
-                                     parse_mode="Markdown", )
-                    bot.register_next_step_handler(message, question_8_end)
-                else:
-                    bot.send_message(message.chat.id,
-                                     'Прекрасно справляешься!',
-                                     parse_mode="Markdown", )
-                    change_answer(message.chat, 'question_answer_end', "answer_4")
-                    if check_answer_final(message.chat, 'question_answer_end'):
-                        bot.send_message(message.chat.id,
-                                         '_Молодцы. Так, это салон Майбаха, если что. Напоминаю, наша задача – '
-                                         'повторить фото. Трогать машину нельзя, но вы попробуйте подобрать хотя '
-                                         'бы ракурс похожий) У вас всё получится!_', parse_mode="Markdown", )
-                        bot.send_photo(message.chat.id,
-                                       'AgACAgIAAxkBAAID32SQzbW7N8Hy25H21op_h3nuKSyTAAK5zjEbaTaJSMChYhqcuio8AQADAgADeQADLwQ')
-                        bot.register_next_step_handler(message, question_8_photo)
-                    else:
-                        bot.register_next_step_handler(message, question_8_end)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_8_end)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_8_end: {error}')
-        bot.register_next_step_handler(message, question_8_end)
-
-
-def question_8_photo(message):
-    try:
-        if check_end_time(message.chat):
-            if message.content_type == 'photo':
-                keyboard_inline = types.InlineKeyboardMarkup()
-                confirm_button = types.InlineKeyboardButton('Подтвердить', callback_data='confirm')
-                cancel_button = types.InlineKeyboardButton('Отменить', callback_data='cancel')
-                keyboard_inline.row(confirm_button, cancel_button)
-                bot.send_photo(admin_id, message.photo[-1].file_id,
-                               caption=f'Подтвердите отправку этой фотографии для "{message.chat.title}":\n'
-                                       f'\n'
-                                       f'Задание 8 (Эйнштейн ):\n'
-                                       f'\n'
-                                       f'[ {message.chat} ]'
-                                       f'#question_8#',
-                               reply_markup=keyboard_inline)
-
-                @bot.callback_query_handler(func=lambda call: True)
-                def callback_handler(call):
-                    text = call.message.caption
-                    match = re.search(r'\[(.*?)\]', text)
-                    question = re.search(r'\#(.*?)\#', text)
-                    text = match.group(1).replace("'", "\"")
-                    text_end = text.replace("None", "null")
-                    value = json.loads(text_end)
-                    chat = types.Chat.de_json(value)
-                    if call.data == 'confirm':
-                        end_question_at(chat, question.group(1))
-                        bot.send_message(call.from_user.id, f'Фотография подтверждена у \"{chat.title}\"')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(chat.id, 'Хм, уверен это фото оценят по достоинству.\nОткрывай меню, '
-                                                  'поехали дальше 👍🏼', reply_markup=keyboard.keyboard(chat))
-                        if check_final(chat):
-                            end_at(chat)
-                            bot.send_sticker(chat.id,
-                                             'CAACAgIAAxkBAAEJWLJkjZnnq-9Z6FIKDa7Sjzjv2udGTgACaS8AAmjYaUgPYCMFmg1OtC8E')
-                            bot.send_message(chat.id, 'Вау! 🥳🥳🥳\n'
-                                                      '\n'
-                                                      'Я в восторге от того, как хорошо вы разбираетесь в автомобилях.'
-                                                      'Не каждый смог бы пройти все задания и ответить на все вопросы. '
-                                                      'Ещё и ваши фотографии, аплодирую стоя.\n'
-                                                      '\n'
-                                                      'Скоро ведущий объявит результаты игры, а вы пока можете '
-                                                      'ещё насладиться выставкой\n'
-                                                      '❤️', reply_markup=None)
-                    elif call.data == 'cancel':
-                        bot.send_message(chat.id, 'Хм.. даю ещё шанс 😊')
-                        bot.delete_message(call.from_user.id, call.message.id)
-                        bot.send_message(call.from_user.id, f'Фотография отменена у \"{chat.title}\"')
-                        bot.register_next_step_handler(message, question_8_photo)
-            else:
-                bot.send_chat_action(message.chat.id, 'typing')
-                bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
-                                 parse_mode="Markdown")
-                bot.register_next_step_handler(message, question_8_photo)
-        else:
-            bot.send_message(message.chat.id,
-                             '_Увы, время вышло_'
-                             , parse_mode="Markdown")
-    except Exception as error:
-        print(f'question_8_photo: {error}')
-        bot.register_next_step_handler(message, question_8_photo)
-
-
-# -------------Вопрос конец---------------------------
 
 def start_question_at(chat_data, name_colum):
     database = db.Data(chat_data)
-    database.start_question_at(f'start_{name_colum}')
+    database.start_entrance_at(f'start_{name_colum}')
 
 
-def end_question_at(chat_data, name_colum):
+def check_end_time(chat_data, column_name):
+    column_name = f'start_{column_name}'
     database = db.Data(chat_data)
-    database.end_question_at(f'{name_colum}')
+    time_start_tuple = database.check_end_time(column_name)
 
+    # Переводим кортеж в строку в формате '%H:%M:%S'
+    time_start_str = time_start_tuple.strftime('%H:%M:%S')
 
-def end_at(chat_data):
-    database = db.Data(chat_data)
-    database.end_at()
+    # Получаем текущее время и приводим его к формату '%H:%M:%S'
+    now_str = datetime.now().strftime('%H:%M:%S')
 
-def check_final(chat_data):
-    database = db.Data(chat_data)
-    number = database.check_final()
-    if all(number):
-        return True
-    else:
-        return False
-
-
-def check_end_time(chat_data):
-    database = db.Data(chat_data)
-    time_start_tuple = database.check_end_time()
-
-    # Извлекаем объект времени из кортежа
-    time_start = time_start_tuple[0]
-    time_start_str = time_start.strftime('%H:%M:%S')
-
-    now = datetime.now().time()
+    # Преобразуем строки в объекты времени
     start_time = datetime.strptime(time_start_str, '%H:%M:%S').time()
-    end_time = (datetime.combine(datetime.today(), start_time) + timedelta(minutes=60)).time()
+    now = datetime.strptime(now_str, '%H:%M:%S').time()
 
+    # Вычисляем end_time как текущее время плюс 15 минут
+    end_time = (datetime.combine(datetime.today(), start_time) + timedelta(minutes=15)).time()
+    # Проверяем, находится ли текущее время между start_time и end_time
     if start_time <= now <= end_time:
         return True
     else:
         return False
 
 
-# -------------------------------------------------
+def change(user_data, name_colum):
+    database = db.Data(user_data)
+    database.replace(name_colum)
+
+
+def check_final(chat_data, block=0):
+    database = db.Data(chat_data)
+    number = database.check_final(block)
+    if all(number):
+        return True
+    else:
+        return False
+
+
 def change_answer(user_data, table_name, name_colum):
     database = db.Data(user_data)
     database.replace_answer(table_name, name_colum)
-
-
-def check(user_id, name_colum):
-    database = db.Data(user_id)
-    number = database.check(name_colum)
-    return number
 
 
 def check_answer_final(chat_data, table_name):
@@ -1569,6 +970,8 @@ def check_answer(chat_data, table_name, name_colum):
     else:
         return False
 
+
+# -------------------------------------------------
 
 while True:
     try:
