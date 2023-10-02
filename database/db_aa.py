@@ -1,0 +1,188 @@
+import psycopg2
+from contextlib import closing
+from psycopg2.extras import DictCursor
+from datetime import datetime
+import time
+
+
+def getCurrentTime():
+    current_time = datetime.now().time()
+    current_time_str = current_time.strftime('%H:%M:%S')
+    return current_time_str
+
+class Data:
+
+    def __init__(self, chat_data):
+        self.chat_data = chat_data
+        self.conn = self.getConn()
+        self.cursor = self.getCursor()
+
+    def getConn(self):
+        conn = psycopg2.connect(
+            dbname='virus',
+            user='virus',
+            password='virus',
+            host='localhost',
+            port='5010'
+        )
+
+        return conn
+
+    def getCursor(self):
+        cursor = self.conn.cursor()
+        return cursor
+
+    def create(self):
+        check = f'select exists(SELECT chat_id FROM chats WHERE chat_id = \'{self.chat_data.id}\')'
+        self.cursor.execute(check)
+        result = self.cursor.fetchone()
+        if (result[0] == False):
+            sql_chat = "INSERT INTO chats (chat_id, name, start_at) VALUES (%s, %s, %s)"
+            values_chat = (self.chat_data.id, self.chat_data.title, getCurrentTime())
+            self.cursor.execute(sql_chat, values_chat)
+            sql_task = "INSERT INTO tasks (chat_id) VALUES (%s)"
+            values_task = (self.chat_data.id,)
+            self.cursor.execute(sql_task, values_task)
+            sql_question_answer = "INSERT INTO question_answer (chat_id) VALUES (%s)"
+            values_question_answer = (self.chat_data.id,)
+            self.cursor.execute(sql_question_answer, values_question_answer)
+            sql_question_answer_end = "INSERT INTO question_answer_end (chat_id) VALUES (%s)"
+            values_question_answer_end = (self.chat_data.id,)
+            self.cursor.execute(sql_question_answer_end, values_question_answer_end)
+            self.conn.commit()
+            self.cursor.close()
+            self.conn.close()
+
+
+
+
+    def replace(self, column_name):
+        self.cursor.execute(f'UPDATE tasks SET {column_name} = true WHERE chat_id = \'{self.chat_data.id}\'')
+        self.conn.commit()
+        self.cursor.close()
+        self.conn.close()
+
+    def replace_answer(self, table_name, column_name):
+        self.cursor.execute(f'UPDATE {table_name} SET {column_name} = true WHERE chat_id = \'{self.chat_data.id}\'')
+        self.conn.commit()
+        self.cursor.close()
+        self.conn.close()
+
+    def check(self, column_name):
+        self.cursor.execute(f'SELECT {column_name} FROM tasks WHERE chat_id = \'{self.chat_data.id}\'')
+        rec = self.cursor.fetchone()
+        self.cursor.close()
+        self.conn.close()
+        return rec[0]
+
+
+
+    def check_answer_final(self, table_name):
+        dict_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        dict_cur.execute(f'SELECT answer_1, answer_2, answer_3, answer_4 FROM {table_name} WHERE chat_id = \'{self.chat_data.id}\'')
+        rec = dict_cur.fetchone()
+        self.cursor.close()
+        self.conn.close()
+        return rec
+
+    def collection(self, name_input, chatname=None):
+        if chatname == None:
+            update_query = "update chats set name = %s where chat_id = %s"
+            self.cursor.execute(update_query, (name_input, str(self.chat_data.id)))
+            self.conn.commit()
+            self.cursor.close()
+            self.conn.close()
+        else:
+            try:
+                update_query = "update chats set name = %s, chatname = %s where chat_id = %s"
+                self.cursor.execute(update_query, (name_input, chatname, str(self.chat_data.id)))
+                self.conn.commit()
+                self.cursor.close()
+                self.conn.close()
+            except Exception as error:
+                print(error)
+
+    def collection_phone(self, phone):
+        update_query = "update chats set number = %s where chat_id = %s"
+        self.cursor.execute(update_query, (phone, str(self.chat_data.id)))
+        self.conn.commit()
+        self.cursor.close()
+        self.conn.close()
+
+    def flag_change(self):
+        update_query = f'UPDATE collector SET flag = \'win\' where chat_id = {self.chat_id}'
+        self.cursor.execute(update_query)
+        self.conn.commit()
+        self.cursor.close()
+        self.conn.close()
+
+    def check_chat_collector(self):
+        check = f'select exists(SELECT chat_id FROM chats WHERE chat_id = \'{self.chat_data.id}\')'
+        self.cursor.execute(check)
+        result = self.cursor.fetchone()
+        return result[0]
+#------------------------------------------------------------------------------------
+    def start_question_at(self, column_name):
+        query = f'UPDATE tasks SET {column_name} = \'{getCurrentTime()}\' WHERE chat_id = \'{self.chat_data.id}\''
+        self.cursor.execute(query)
+        self.conn.commit()
+        self.cursor.close()
+        self.conn.close()
+
+    def end_question_at(self, column_name):
+        end_string = f'end_{column_name}'
+        query = f'UPDATE tasks SET {end_string} = \'{getCurrentTime()}\',{column_name} = true  WHERE chat_id = \'{self.chat_data.id}\''
+        self.cursor.execute(query)
+        self.conn.commit()
+        self.cursor.close()
+        self.conn.close()
+
+    def end_at(self, ):
+        query = f'UPDATE chats SET end_at = \'{getCurrentTime()}\' WHERE chat_id = \'{self.chat_data.id}\''
+        print(query)
+        self.cursor.execute(query)
+        self.conn.commit()
+        self.cursor.close()
+        self.conn.close()
+
+    def get_question(self):
+        self.cursor.execute('SELECT question_1,question_2,question_3,question_4,question_5, question_6, question_7, question_8 FROM tasks WHERE chat_id = \'{}\''.format(self.chat_data.id))
+        rec = self.cursor.fetchone()
+        self.cursor.close()
+        self.conn.close()
+        return rec
+
+    def check_final(self):
+        self.cursor.execute(f'SELECT question_1,question_2,question_3,question_4,question_5, question_6, question_7, question_8 FROM tasks WHERE chat_id = \'{self.chat_data.id}\'')
+        rec = self.cursor.fetchone()
+        self.cursor.close()
+        self.conn.close()
+        return rec
+
+    def check_end_time(self):
+        self.cursor.execute(f'SELECT start_at FROM chats WHERE chat_id = \'{self.chat_data.id}\'')
+        rec = self.cursor.fetchone()
+        self.cursor.close()
+        self.conn.close()
+        return rec
+
+    def response_answer(self, table_name, column_name):
+        dict_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        dict_cur.execute(f'SELECT {column_name} FROM {table_name} WHERE chat_id = \'{self.chat_data.id}\'')
+        rec = dict_cur.fetchone()
+
+        return rec
+
+    def find_group_database(self, first_second_name):
+        self.cursor.execute(f'SELECT group_url FROM groups WHERE name = \'{first_second_name}\'')
+        rec = self.cursor.fetchall()
+        self.cursor.close()
+        self.conn.close()
+        if bool(rec):
+            if len(rec) == 1:
+                return rec[0]
+            else:
+                return "Много"
+        else:
+            return None
+

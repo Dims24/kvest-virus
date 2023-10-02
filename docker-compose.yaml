@@ -1,0 +1,26 @@
+version: '3.9'
+
+networks:
+  avito-bot-network:
+    name: avito-bot-network
+    driver: bridge
+
+volumes:
+  avito-bot-redis-volume:
+  avito-bot-postgres-volume:
+
+services:
+  db:
+    image: postgres:14.5-alpine
+    container_name: avito-bot-db
+    restart: always
+    ports: ["5003:5432"]
+    environment:
+      POSTGRES_DB: avito-bot
+      POSTGRES_USER: avito-bot
+      POSTGRES_PASSWORD: avito-bot
+      POSTGRES_PORT: 5000
+    volumes:
+      - avito-bot-postgres-volume:/var/lib/postgresql/data
+    networks:
+      - avito-bot-network
