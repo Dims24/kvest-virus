@@ -124,7 +124,21 @@ class Data:
         self.conn.close()
         return rec
 
+    def get_count(self):
+        query = "SELECT name, count FROM chats"
+        self.cursor.execute(query)
 
+        result = {}
+        rows = self.cursor.fetchall()
+
+        for row in rows:
+            name, count = row
+            result[name] = count
+
+        self.cursor.close()
+        self.conn.close()
+
+        return result
 
     def check_final(self, block):
         if block == 1:

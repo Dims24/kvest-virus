@@ -1,3 +1,4 @@
+import os
 import random
 
 import telebot
@@ -6,6 +7,8 @@ import time
 from telebot import types
 import json
 import re
+
+from telebot.types import InputFile
 
 import keyboard.main_keyboard as keyboard
 import database.db_aa as db
@@ -35,7 +38,7 @@ def text_check(text):
     return regex.sub('', text)
 
 
-menedjer = 64783167
+menedjer = 703608663
 # admin_id = '64783167'
 admin_id = '703608663'
 
@@ -49,6 +52,7 @@ def handle_start(message):
     try:
         if (message.from_user.id == menedjer):
             bot.send_message(message.chat.id, 'Вам доступен экспорт', reply_markup=keyboard.export())
+            # bot.register_next_step_handler(message, rules)
         else:
             bot.send_sticker(message.chat.id,
                              "CAACAgIAAxkBAAEKbk5lGdRVqH3U0u8sIaxz7J8UgxkiawACZg8AAlGwsEiUHH3OCPuZqTAE")
@@ -65,16 +69,16 @@ def handle_start(message):
         # bot.send_message(483241197, f'Бота запустил: {message.from_user.first_name}, @{message.from_user.username}')
 
 
-# @bot.message_handler(func=lambda message: message.text.lower() == 'экспорт данных', content_types=['text'])
-# def export(message):
-#     try:
-#         if (message.from_user.id == menedjer):
-#             # excel_name = export_data()
-#             # print(excel_name)
-#             # bot.send_document(message.chat.id, InputFile(excel_name))
-#             # os.remove(excel_name)
-#     except Exception as error:
-#         print(f'export: {error}')
+@bot.message_handler(func=lambda message: message.text.lower() == 'экспорт данных', content_types=['text'])
+def export(message):
+    try:
+        if (message.from_user.id == menedjer):
+            excel_name = export_data()
+            print(excel_name)
+            bot.send_document(message.chat.id, InputFile(excel_name))
+            os.remove(excel_name)
+    except Exception as error:
+        print(f'export: {error}')
 
 
 @bot.message_handler(content_types=['document', 'photo', 'audio', 'video', 'animation', 'voice', 'sticker'])
@@ -229,7 +233,7 @@ def question_1_end(message):
                             bot.register_next_step_handler(message, question_1_end)
                 else:
                     bot.send_chat_action(message.chat.id, 'typing')
-                    bot.send_message(message.chat.id, random.choice(incorrect))
+                    bot.send_message(message.chat.id, random.choice(incorrect), parse_mode="Markdown")
                     bot.register_next_step_handler(message, question_1_end)
             else:
                 bot.register_next_step_handler(message, question_1_end)
@@ -464,7 +468,7 @@ def question_5_end(message):
                                          parse_mode="Markdown")
                         change_answer(message.chat, 'question_answer_2', "answer_1")
                         if check_answer_final(message.chat, 'question_answer_2'):
-                            final_question_1(message)
+                            final_question_2(message)
                         else:
                             bot.register_next_step_handler(message, question_5_end)
                 elif message.text.lower() in ["!ентер", "!энтер", "!enter"]:
@@ -479,7 +483,7 @@ def question_5_end(message):
                                          parse_mode="Markdown")
                         change_answer(message.chat, 'question_answer_2', "answer_2")
                         if check_answer_final(message.chat, 'question_answer_2'):
-                            final_question_1(message)
+                            final_question_2(message)
                         else:
                             bot.register_next_step_handler(message, question_5_end)
                 elif message.text.lower() in ["!огнетушитель", "!огнетушители"]:
@@ -494,7 +498,7 @@ def question_5_end(message):
                                          parse_mode="Markdown")
                         change_answer(message.chat, 'question_answer_2', "answer_3")
                         if check_answer_final(message.chat, 'question_answer_2'):
-                            final_question_1(message)
+                            final_question_2(message)
                         else:
                             bot.register_next_step_handler(message, question_5_end)
                 else:
@@ -685,27 +689,27 @@ def question_7_3(message):
                     change(message.chat, "question_7")
                     if check_final(message.chat, 3):
                         bot.send_photo(message.chat.id,
-                                       'AgACAgIAAxkBAAMYZRs9UMdXs56lovHy-jpoSE2xDv4AAvLKMRuYE9hIMtz5OxSgpQkBAAMCAAN5AAMwBA',
+                                       'AgACAgIAAxkBAAICEWUcIkzz7JYTC3gAAdu1K_ZM2rToHgACus4xG25C4EhknPFmR48z7gEAAwIAA3kAAzAE',
                                        caption='_Отличный результат!_'
                                        , parse_mode="Markdown")
                         end(message, True)
                     else:
                         bot.send_photo(message.chat.id,
-                                       'AgACAgIAAxkBAAMYZRs9UMdXs56lovHy-jpoSE2xDv4AAvLKMRuYE9hIMtz5OxSgpQkBAAMCAAN5AAMwBA',
+                                       'AgACAgIAAxkBAAICEWUcIkzz7JYTC3gAAdu1K_ZM2rToHgACus4xG25C4EhknPFmR48z7gEAAwIAA3kAAzAE',
                                        caption='_Отличный результат! Можете выбрать следующее задание, или готовиться к началу дня._'
                                        , parse_mode="Markdown", reply_markup=keyboard.keyboard3(message.chat))
                 else:
                     bot.send_chat_action(message.chat.id, 'typing')
                     bot.send_message(message.chat.id, 'Хм.. предлагаю подумать ещё 😊\n',
                                      parse_mode="Markdown")
-                    bot.register_next_step_handler(message, question_6_end)
+                    bot.register_next_step_handler(message, question_7_3)
             else:
-                bot.register_next_step_handler(message, question_6_end)
+                bot.register_next_step_handler(message, question_7_3)
         else:
             map_virus(message, False)
     except Exception as error:
-        print(f'question_6_end: {error}')
-        bot.register_next_step_handler(message, question_6_end)
+        print(f'question_7_3: {error}')
+        bot.register_next_step_handler(message, question_7_3)
 
 
 # -------------задание 8*---------------------------
@@ -825,7 +829,7 @@ def question_9_end(message):
                         if check_final(chat, 3):
                             markup = telebot.types.ReplyKeyboardRemove()
                             bot.send_sticker(message.chat.id,
-                                             "CAACAgIAAxkBAAEKbkxlGdO6slpcsB9jOt2Ge6m2cZVuywACaA0AArShoUgeWJn3yocDQTAE ")
+                                             "CAACAgIAAxkBAAEKbkxlGdO6slpcsB9jOt2Ge6m2cZVuywACaA0AArShoUgeWJn3yocDQTAE")
                             bot.send_message(message.chat.id,
                                              '_Мне кажется вы остановили  распространение вируса. Поздравляю! '
                                              'Осталось лишь понять, какая команда внесла больший вклад, '
@@ -882,14 +886,14 @@ def end(message, flag):
     if flag:
         markup = telebot.types.ReplyKeyboardRemove()
         bot.send_sticker(message.chat.id,
-                         "CAACAgIAAxkBAAEKbkxlGdO6slpcsB9jOt2Ge6m2cZVuywACaA0AArShoUgeWJn3yocDQTAE ")
+                         "CAACAgIAAxkBAAEKbkxlGdO6slpcsB9jOt2Ge6m2cZVuywACaA0AArShoUgeWJn3yocDQTAE")
         bot.send_message(message.chat.id, '_Мне кажется вы остановили  распространение вируса. Поздравляю! '
                                           'Осталось лишь понять, какая команда внесла больший вклад, а пока отдыхайте._\n',
                          parse_mode="Markdown", reply_markup=markup)
     else:
         markup = telebot.types.ReplyKeyboardRemove()
         bot.send_sticker(message.chat.id,
-                         "CAACAgIAAxkBAAEKbkxlGdO6slpcsB9jOt2Ge6m2cZVuywACaA0AArShoUgeWJn3yocDQTAE ")
+                         "CAACAgIAAxkBAAEKbkxlGdO6slpcsB9jOt2Ge6m2cZVuywACaA0AArShoUgeWJn3yocDQTAE")
         bot.send_message(message.chat.id,
                          '_Дажен не смотря на то, что время вышло вы все равно остановили  распространение вируса. Поздравляю! '
                          'Осталось лишь понять, какая команда внесла больший вклад, а пока отдыхайте._\n',
@@ -899,10 +903,11 @@ def end(message, flag):
 
 # -------------Карта---------------------------
 def map_virus(message, flag):
+    markup = telebot.types.ReplyKeyboardRemove()
     if flag:
-        bot.send_message(message.chat.id, 'Вы справились со всеми заданиями, ожидайте наставлений ведущего')
+        bot.send_message(message.chat.id, 'Вы справились со всеми заданиями, ожидайте наставлений ведущего', reply_markup=markup)
     else:
-        bot.send_message(message.chat.id, 'К сожалению время вышло, ожидайте наставлений ведущего')
+        bot.send_message(message.chat.id, 'К сожалению время вышло, ожидайте наставлений ведущего', reply_markup=markup)
 
 
 def start_question_at(chat_data, name_colum):
@@ -970,7 +975,10 @@ def check_answer(chat_data, table_name, name_colum):
     else:
         return False
 
-
+def get_count(chat_data):
+    database = db.Data(chat_data)
+    answer = database.get_count()
+    return answer
 # -------------------------------------------------
 
 while True:
