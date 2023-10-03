@@ -78,27 +78,25 @@ def export_data():
     df['Баллы'] = df.apply(calculate_points, axis=1)
 
     current_date = date.today()
-
-    # Экспорт DataFrame в Excel
-    df.to_excel(f'{current_date}.xlsx', index=False)
     file_path = os.path.join(os.getcwd(), f'{current_date}.xlsx')
 
-    # Экспорт DataFrame в Excel
-    writer = pd.ExcelWriter(file_path, engine='openpyxl')
-    df.to_excel(writer, index=False, sheet_name='Sheet1')
+    # Экспорт DataFrame в Excel с использованием контекстного менеджера
+    with pd.ExcelWriter(file_path, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Sheet1')
 
-    # Получение объекта рабочей книги
-    workbook = writer.book
-    worksheet = writer.sheets['Sheet1']
+        # Получение объекта рабочей книги
+        workbook = writer.book
+        worksheet = writer.sheets['Sheet1']
 
-    # Создание объекта для заливки ячеек зеленым цветом
-    fill = PatternFill(start_color='00FF00', end_color='00FF00', fill_type='solid')
+        # Создание объекта для заливки ячеек зеленым цветом
+        fill = PatternFill(start_color='00FF00', end_color='00FF00', fill_type='solid')
 
-    # Поиск всех ячеек со значением "выполнено" и применение заливки
-    for row in worksheet.iter_rows(min_row=2, max_row=worksheet.max_row, min_col=3, max_col=12):
-        for cell in row:
-            if cell.value == 'выполнено':
-                cell.fill = fill
+        # Поиск всех ячеек со значением "выполнено" и применение заливки
+        for row in worksheet.iter_rows(min_row=2, max_row=worksheet.max_row, min_col=3, max_col=12):
+            for cell in row:
+                if cell.value == 'выполнено':
+                    cell.fill = fill
+
         # Автоподбор ширины столбцов
         for col in worksheet.columns:
             max_length = 0
@@ -111,9 +109,5 @@ def export_data():
                     pass
             adjusted_width = (max_length + 2)
             worksheet.column_dimensions[column].width = adjusted_width
-    # Сохранение файла Excel
-    writer.save()
-    writer.close()
 
     return file_path
-    # return path
