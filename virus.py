@@ -40,6 +40,7 @@ def text_check(text):
 
 menedjer = 703608663
 # admin_id = '64783167'
+# admin_id = '703608663'
 admin_id = '314051707'
 
 
@@ -59,7 +60,7 @@ def handle_start(message):
             bot.send_message(message.chat.id, '_Приветствую, друзья, впереди миссия по спасению планеты, '
                                               'но для начала давайте познакомимся._\n'
                                               '\n'
-                                              "_Введите название вашей команды: (пример:_ *!Название*)\n"
+                                              "_Введите название вашей команды, но перед ним обязательно поставьте !: (пример:_ *!Название*)\n"
                              , parse_mode="Markdown", reply_markup=None)
             bot.register_next_step_handler(message, rules)
     except Exception as error:
@@ -98,7 +99,7 @@ def rules(message):
             bot.send_message(message.chat.id,
                              "_Отличное название. Теперь немного расскажу о правилах пользования ботом:_\n"
                              "\n"
-                             "1. Бот реагирует только на сообщения, которые начинаются с ! (Пример: !ответ) "
+                             "1. 1.	Бот реагирует только на сообщения, которые начинаются с ! (Пример: !ответ). "
                              "Вы можете писать в чате что угодно, но бот ответит только после сообщения с !\n"
                              "2. Ведущий в начале каждой «Ночи» будет говорить кодовое слово, которое вам необходимо "
                              "будет ввести в чате\n"
@@ -276,12 +277,12 @@ def question_2(message):
             bot.send_sticker(message.chat.id,
                              "CAACAgIAAxkBAAEKblhlGdTr3dDdyJULGEB0WO28ZDb66QACcg8AAiRaoEiI1kAytRS9zjAE")
             bot.send_message(message.chat.id,
-                             '_Посмотрите! Что это? Какое-то зашифрованное послание. Может это ключ к тому, '
-                             'что покончит с вирусом навсегда?_\n'
+                             '_Посмотрите! Что это? Какое-то зашифрованное послание. Может это ключ к тому,'
+                             ' как распространяется вирус?_\n'
                              '\n'
                              'Ответ пишите в формате: *!Ответ*', parse_mode="Markdown", reply_markup=markup)
             bot.send_audio(message.chat.id,
-                           'CQACAgIAAxkBAAICVGUccR0sLsHZEXVVmkD-D4nK6c8FAALCOwACbkLgSMwVUjIbyFFnMAQ')
+                           'CQACAgIAAxkBAAIE4mUdvdPsGQWNmLPmL1wqFu6kHh9aAAI4NAACbp_wSG9uk8ev5uMgMAQ')
             bot.register_next_step_handler(message, question_2_end)
         else:
             map_virus(message, False)
@@ -375,20 +376,24 @@ def question_3_end(message):
 @bot.message_handler(func=lambda message: message.text.lower() == '!изоляция', content_types=['text'])
 def entrance2(message):
     try:
-        if message.content_type == 'text' and message.text[:1] == '!':
-            if message.text.lower() in ['!изоляция']:
-                bot.send_sticker(message.chat.id,
-                                 "CAACAgIAAxkBAAEKblxlGdUewRG6zqFeFZax9SYN23YWKQACaA0AArShoUgeWJn3yocDQTAE")
-                bot.send_message(message.chat.id, "_Справа снизу есть кнопка, которая откроет меню, нажмите "
-                                                  "её и выбирайте задание для спасения планеты!_\n",
-                                 parse_mode="Markdown", reply_markup=keyboard.keyboard2(message.chat))
-                start_question_at(message.chat, 'entrance2')
-            else:
-                bot.send_message(message.chat.id, '_Неверное кодовое слово_\n'
-                                 , parse_mode="Markdown")
-                bot.register_next_step_handler(message, entrance2)
+        if check_final(message.chat, 2):
+            bot.send_message(message.chat.id, '_Вы проходили данный блок, введите кодовое слово, '
+                                              'которое назвал ведущий _\n', parse_mode="Markdown")
         else:
-            bot.register_next_step_handler(message, entrance2)
+            if message.content_type == 'text' and message.text[:1] == '!':
+                if message.text.lower() in ['!изоляция']:
+                    bot.send_sticker(message.chat.id,
+                                     "CAACAgIAAxkBAAEKblxlGdUewRG6zqFeFZax9SYN23YWKQACaA0AArShoUgeWJn3yocDQTAE")
+                    bot.send_message(message.chat.id, "_Справа снизу есть кнопка, которая откроет меню, нажмите "
+                                                      "её и выбирайте задание для спасения планеты!_\n",
+                                     parse_mode="Markdown", reply_markup=keyboard.keyboard2(message.chat))
+                    start_question_at(message.chat, 'entrance2')
+                else:
+                    bot.send_message(message.chat.id, '_Неверное кодовое слово_\n'
+                                     , parse_mode="Markdown")
+                    bot.register_next_step_handler(message, entrance2)
+            else:
+                bot.register_next_step_handler(message, entrance2)
     except Exception as error:
         print(f'entrance2: {error}')
         bot.register_next_step_handler(message, entrance2)
@@ -490,7 +495,7 @@ def question_5_end(message):
                                              "_Верно, осталось немного._",
                                              parse_mode="Markdown")
                             bot.register_next_step_handler(message, question_5_end)
-                elif message.text.lower() in ["!ентер", "!энтер", "!enter"]:
+                elif message.text.lower() in ["!ентер", "!энтер", "!enter","!enter at own risk"]:
                     if check_answer(message.chat, 'question_answer_2', "answer_2"):
                         bot.send_message(message.chat.id,
                                          '_Верно, но подобный ответ уже засчитан_',
@@ -553,9 +558,9 @@ def question_6(message):
             bot.send_sticker(message.chat.id,
                              "CAACAgIAAxkBAAEKbmNlGdV4jvO1gdlP7ZGQ8bLkAstpdQACxQ4AAoxEmUgDii518Wg0ezAE")
             bot.send_message(message.chat.id,
-                             '_Некоторые зараженные районы не могут связаться с нами оБычными способами. '
-                             'но они пРидумали другой, кАк передавать нам свои сообщенИя. вниматеЛьно смотрите на '
-                             'видео и поймите, что они пытаются нам сказатЬ._\n'
+                             '_некоторые зараженные районы не могут связаться с нами оБычными способами. '
+                             'но они пРидумали другой, кАк передавать нам свои сообщенИя с помощью света. '
+                             'вниматеЛьно смотрите на видео и поймите, что они пытаются нам сказатЬ._\n'
                              '\n'
                              'Ответ пишите в формате: *!Ответ*', parse_mode="Markdown",
                              reply_markup=markup)
@@ -602,17 +607,21 @@ def question_6_end(message):
 def entrance3(message):
     try:
         if message.content_type == 'text' and message.text[:1] == '!':
-            if message.text.lower() in ['!антивирус']:
-                bot.send_sticker(message.chat.id,
-                                 "CAACAgIAAxkBAAEKbmdlGdWOA__HQsInmtWk_e7wd4IyBQACtA4AAgvSoEigkT622AoTTTAE")
-                bot.send_message(message.chat.id, "_Справа снизу есть кнопка, которая откроет меню, нажмите "
-                                                  "её и выбирайте задание для спасения планеты!_\n",
-                                 parse_mode="Markdown", reply_markup=keyboard.keyboard3(message.chat))
-                start_question_at(message.chat, 'entrance3')
+            if check_final(message.chat, 3):
+                bot.send_message(message.chat.id, '_Вы проходили данный блок, введите кодовое слово, '
+                                                  'которое назвал ведущий _\n', parse_mode="Markdown")
             else:
-                bot.send_message(message.chat.id, '_Неверное кодовое слово_\n'
-                                 , parse_mode="Markdown")
-                bot.register_next_step_handler(message, entrance3)
+                if message.text.lower() in ['!антивирус']:
+                    bot.send_sticker(message.chat.id,
+                                     "CAACAgIAAxkBAAEKbmdlGdWOA__HQsInmtWk_e7wd4IyBQACtA4AAgvSoEigkT622AoTTTAE")
+                    bot.send_message(message.chat.id, "_Справа снизу есть кнопка, которая откроет меню, нажмите "
+                                                      "её и выбирайте задание для спасения планеты!_\n",
+                                     parse_mode="Markdown", reply_markup=keyboard.keyboard3(message.chat))
+                    start_question_at(message.chat, 'entrance3')
+                else:
+                    bot.send_message(message.chat.id, '_Неверное кодовое слово_\n'
+                                     , parse_mode="Markdown")
+                    bot.register_next_step_handler(message, entrance3)
         else:
             bot.register_next_step_handler(message, entrance3)
     except Exception as error:
@@ -749,16 +758,16 @@ def question_8(message):
             bot.send_sticker(message.chat.id,
                              "CAACAgIAAxkBAAEKbmtlGdXYm0HqrFgex3v6lzBXG1IJEgACyw0AAjR_oEiWR2jcYJrkpjAE")
             bot.send_message(message.chat.id,
-                             '_Кажется, мы нашли разработки наших коллег по тому, как предотвратить этот вирус.'
-                             ' Они использовали совсем несложный способ кодирования, всего лишь нужно найти слова'
-                             ' в этом прямоугольнике из букв и ответить на вопрос, которым они задавались.'
-                             ' Пример шифровки тоже покажем._\n'
+                             '_Кажется, мы нашли разработки наших коллег по тому, как предотвратить этот вирус. '
+                             'Они использовали совсем несложный способ кодирования, всего лишь нужно найти слова '
+                             'в этом прямоугольнике из букв и ответить на вопрос,составленный из них. Пример того, '
+                             'как слова там записаны тоже покажем._\n'
                              '\n'
                              'Ответ пишите в формате: *!Ответ*', parse_mode="Markdown", reply_markup=markup)
             bot.send_photo(message.chat.id,
-                           'AgACAgIAAxkBAAMZZRs-SnIJYLE92QkCAaG5utwioKgAAvPKMRuYE9hIkGAkFATHyTkBAAMCAAN5AAMwBA')
+                           'AgACAgIAAxkBAAIE4GUdvZXTMi-WwQR6yrGYrcGo6WiUAAKczzEbbp_wSELwc5VMnKdCAQADAgADeQADMAQ')
             bot.send_photo(message.chat.id,
-                           'AgACAgIAAxkBAAMaZRs-X8L5L6H-VnZl7jStd0WIP8cAAvTKMRuYE9hIln6CWHUS268BAAMCAAN5AAMwBA')
+                           'AgACAgIAAxkBAAIE4WUdvadOQWc_4lzLgTODasdK668XAAKezzEbbp_wSNZo2qdU4KTdAQADAgADeQADMAQ')
             bot.register_next_step_handler(message, question_8_end)
         else:
             map_virus(message, False)
@@ -853,12 +862,11 @@ def question_9_end(message):
                     if call.data == 'confirm':
                         change(chat, 'question_9')
                         bot.send_message(call.from_user.id, f'Фотография подтверждена у \"{chat.title}\"')
-
                         if check_final(chat, 3):
                             markup = telebot.types.ReplyKeyboardRemove()
-                            bot.send_sticker(message.chat.id,
+                            bot.send_sticker(chat.id,
                                              "CAACAgIAAxkBAAEKbkxlGdO6slpcsB9jOt2Ge6m2cZVuywACaA0AArShoUgeWJn3yocDQTAE")
-                            bot.send_message(message.chat.id,
+                            bot.send_message(chat.id,
                                              '_Мне кажется, вы остановили  распространение вируса. Поздравляю! '
                                              'Осталось лишь понять, какая команда внесла больший вклад, '
                                              'а пока отдыхайте._\n',
